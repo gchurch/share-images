@@ -1,0 +1,60 @@
+CREATE TABLE Users (
+  userID INT NOT NULL AUTO_INCREMENT,
+  username varchar(20) NOT NULL UNIQUE,
+  salt char(128) NOT NULL,
+  iterations INT NOT NULL,
+  login_key char(128) NOT NULL,
+  signupDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (userID)
+);
+
+INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( value1, value2, value3, value4 );
+
+SELECT userID FROM Users WHERE username=value;
+
+CREATE TABLE Sessions (
+  sessionID INT NOT NULL AUTO_INCREMENT,
+  userID INT NOT NULL,
+  cookie VARCHAR(128),
+  PRIMARY KEY (sessionID),
+  FOREIGN KEY (userID) REFERENCES Users(userID)
+);
+
+SELECT Users.username FROM Sessions INNER JOIN Users ON Sessions.
+
+INSERT INTO Sessions ( cookie, username ) VALUES ( value1, value2 );
+
+DELETE FROM Sessions WHERE username = value;
+
+SELECT * FROM Sessions WHERE cookie = value;
+
+CREATE TABLE Images (
+  imageID INT NOT NULL AUTO_INCREMENT,
+  userID INT NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  path VARCHAR(100) NOT NULL,
+  PRIMARY KEY (imageID),
+  FOREIGN KEY (userID) REFERENCES Users(userID)
+);
+
+INSERT INTO Images ( userID, title, path ) VALUES ( value1, value2, value3 );
+
+SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT 1;
+
+SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;
+
+SELECT Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = 5;
+
+CREATE TABLE Comments (
+  commentID INT NOT NULL AUTO_INCREMENT,
+  userID INT NOT NULL,
+  imageID INT NOT NULL,
+  text VARCHAR(200) NOT NULL,
+  PRIMARY KEY (commentID),
+  FOREIGN KEY (userID) REFERENCES Users(userID),
+  FOREIGN KEY (imageID) REFERENCES Images(imageID)
+);
+
+INSERT INTO Comments ( userID, imageID, text) VALUES ( value1, value2, value3 );
+
+SELECT Users.username, Comments.imageID, Comments.text FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = 5 ORDER BY Comments.commentID DESC;

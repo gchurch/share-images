@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns='http://www.w3.org/1999/xhtml' lang='en-GB' xml:lang='en-GB'>
+<head>
+  <meta charset='UTF-8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'/>
+  <title>Share Images!</title>
+  <!--stylesheets-->
+  <link href='/stylesheets/style.css' rel='stylesheet' type='text/css'/>
+  {{#stylesheets}}
+  <link href='/stylesheets/{{href}}' rel='stylesheet' type='text/css'/>
+  {{/stylesheets}}
+  <!--scripts-->
+  {{#scripts}}
+  <script src='{{src}}'></script>
+  {{/scripts}}
+</head>
+<body>
+  <header>
+    <a id='home' href='/'>Share Images!</a>
+    {{{account1}}}
+    {{{account2}}}
+  </header>
+  <main>
+    {{{content}}}
+  </main>
+  <footer>
+    <p>Share Images! - 2018</p>
+  </footer> 	
+</body>
+</html>

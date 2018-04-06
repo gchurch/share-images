@@ -1,0 +1,12 @@
+<h1>Home</h1>
+<p>Click <a href='/search'>here</a> to search for an image!</p>
+<p>Click <a href='/upload'>here</a> to upload an image!</p>
+<div id='images'>
+  {{#images}}<a href='/image/{{imageID}}'>
+    <div>
+      <div><i>{{title}}</i></div>
+      <div>by <b>{{username}}</b></div>
+      <div class='image'><img src='/images/uploads/{{path}}' alt='{{alt}}'/></div>
+    </div>
+  </a>{{/images}}
+</div>

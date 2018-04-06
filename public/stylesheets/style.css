@@ -1,0 +1,35 @@
+header, footer {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  background-color: #508d54;
+}
+
+header {
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+}
+
+main {
+  background-color: #8dccdf;
+}
+
+header, footer, h1, p, div {
+  text-align: center;
+}
+
+header #home {
+  font-size: 3em;
+  font-weight: bold;
+  font-family: garamond;
+}
+
+header #home:link, header #home:visited, header #home:active {
+  color: black;
+  text-decoration: none;
+}
+
+#logo {
+  width: 30%;
+  margin: auto;
+}

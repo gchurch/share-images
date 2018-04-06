@@ -1,0 +1,16 @@
+<h1>Search</h1>
+<div>
+  <p>Search for keywords:</p>
+  <form>
+    <input type='text'/>
+  </form>
+</div>
+<div id='images'>
+  {{#results}}<a href='/image/{{imageID}}''>
+    <div>
+      <div><i>{{title}}</i></div>
+      <div>by <b>{{username}}</b></div>
+      <div class='image'><img src='/images/uploads/{{path}}' alt='{{alt}}'/></div>
+    </div>
+  </a>{{/results}}
+</div>
