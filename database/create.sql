@@ -1,0 +1,36 @@
+DROP DATABASE ShareImages;
+CREATE DATABASE ShareImages;
+USE ShareImages;
+CREATE TABLE Users (
+  userID INT NOT NULL AUTO_INCREMENT,
+  username varchar(20) NOT NULL UNIQUE,
+  salt char(128) NOT NULL,
+  iterations INT NOT NULL,
+  login_key char(128) NOT NULL,
+  signupDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (userID)
+);
+CREATE TABLE Sessions (
+  sessionID INT NOT NULL AUTO_INCREMENT,
+  userID INT NOT NULL,
+  cookie VARCHAR(128),
+  PRIMARY KEY (sessionID),
+  FOREIGN KEY (userID) REFERENCES Users(userID)
+);
+CREATE TABLE Images (
+  imageID INT NOT NULL AUTO_INCREMENT,
+  userID INT NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  path VARCHAR(100) NOT NULL,
+  PRIMARY KEY (imageID),
+  FOREIGN KEY (userID) REFERENCES Users(userID)
+);
+CREATE TABLE Comments (
+  commentID INT NOT NULL AUTO_INCREMENT,
+  userID INT NOT NULL,
+  imageID INT NOT NULL,
+  text VARCHAR(200) NOT NULL,
+  PRIMARY KEY (commentID),
+  FOREIGN KEY (userID) REFERENCES Users(userID),
+  FOREIGN KEY (imageID) REFERENCES Images(imageID)
+);

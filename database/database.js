@@ -8,17 +8,8 @@ var connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "password",
-  database: "MYAPP"
+  database: "ShareImages"
 });
-
-/*
-var connection = mysql.createConnection({
-  host: String(process.env.MYSQLCS_HOST),
-  user: String(process.env.MYSQLCS_USER),
-  password: String(process.env.MYSQLCS_PASSWORD),
-  database: String(process.env.MYSQLCS_DATABASE)
-});
-*/
 
 var imageLimit = 6;
 

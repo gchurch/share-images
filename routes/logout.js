@@ -1,8 +1,8 @@
 "use strict";
 
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var database = require("./../database.js");
+var database = require("./../database/database.js");
 
 //delete the session associated with this account
 function deleteSession(req, res, next) {

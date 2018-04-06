@@ -11,7 +11,7 @@ var mustacheExpress = require('mustache-express');
 var middleware = require('./middleware.js');
 
 //connect to the database
-require("./database.js").connectToDatabase();
+require("./database/database.js").connectToDatabase();
 
 //routes
 var index = require('./routes/index');

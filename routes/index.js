@@ -3,7 +3,7 @@
 var express = require("express");
 var router = express.Router();
 var fs = require("fs");
-var database = require("./../database.js");
+var database = require("./../database/database.js");
 var mustache = require("mustache");
 var mw = require("./../middleware.js");
 

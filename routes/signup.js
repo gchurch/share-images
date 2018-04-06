@@ -1,10 +1,10 @@
 "use strict";
 
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 var fs = require("fs");
 var mustache = require("mustache");
-var database = require("./../database.js");
+var database = require("./../database/database.js");
 var mw = require("./../middleware.js");
 
 //load the signup page
