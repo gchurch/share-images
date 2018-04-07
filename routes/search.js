@@ -38,7 +38,7 @@ function renderSearchTemplate(req, res, next) {
 }
 
 // GET request for search page
-var stylesheets = [{href: "search.css"}];
+var stylesheets = [{href: "images.css"}];
 var scripts = [];
 router.get('/', loadSearchTemplate, getAllImages, renderSearchTemplate, mw.renderPage(stylesheets, scripts));
 

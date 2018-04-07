@@ -7,7 +7,7 @@ CREATE TABLE Users (
   salt char(128) NOT NULL,
   iterations INT NOT NULL,
   login_key char(128) NOT NULL,
-  signupDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  signupDate DATETIME DEFAULT NOW(),
   PRIMARY KEY (userID)
 );
 CREATE TABLE Sessions (

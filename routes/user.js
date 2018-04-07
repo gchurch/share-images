@@ -28,17 +28,28 @@ function getUserData(req, res, next) {
   }
 }
 
+function getUserImages(req, res, next) {
+  database.getUserImages(req.params.username, done);
+
+  //callback functioin
+  function done(results) {
+    res.userImages = results;
+    next();
+  }
+}
+
 function renderPageTemplate(req, res, next) {
   var view = {
   	username: req.params.username,
-  	signupDate: res.userData.signupDate
+  	signupDate: res.userData.signupDate,
+    images: res.userImages
   }
   res.pageContent = mustache.render(res.pageContent, view);
   next();
 }
 
-var stylesheets = [];
+var stylesheets = [{href: "images.css"}];
 var scripts = [];
-router.get("/:username", loadPageTemplate, getUserData, renderPageTemplate, mw.renderPage(stylesheets,scripts));
+router.get("/:username", loadPageTemplate, getUserData, getUserImages, renderPageTemplate, mw.renderPage(stylesheets,scripts));
 
 module.exports = router;

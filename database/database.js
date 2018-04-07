@@ -353,8 +353,14 @@ function getSessionUsername(cookie, callback) {
 }
 module.exports.getSessionUsername = getSessionUsername;
 
+
+
+/**********USER DATA******************/
+
+
+
 function getUserData(username, callback) {
-  var query = "SELECT signupDate FROM Users WHERE username = '" + username + "';";
+  var query = 'SELECT DATE_FORMAT(signupDate, "%d/%m/%y") as signupDate FROM Users WHERE username = "' + username + '";';
   connection.query(query, done);
 
   //callback function
@@ -369,3 +375,15 @@ function getUserData(username, callback) {
   }
 }
 module.exports.getUserData = getUserData;
+
+function getUserImages(username, callback) {
+  var query = "SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = '" + username + "';";
+  connection.query(query, done);
+
+  //callback function
+  function done(err, results) {
+    if(err) throw err;
+    callback(results);
+  }
+}
+module.exports.getUserImages = getUserImages;

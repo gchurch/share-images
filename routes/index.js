@@ -38,7 +38,7 @@ function renderIndexTemplate(req, res, next) {
 }
 
 // GET home page.
-var stylesheets = [{href: "index.css"}];
+var stylesheets = [{href: "images.css"}];
 var scripts = [];
 router.get('/', loadIndexTemplate, getLatestImages, renderIndexTemplate, mw.renderPage(stylesheets,scripts));
 
