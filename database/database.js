@@ -94,7 +94,7 @@ module.exports.addImage = addImage;
 
 //get individual image data
 function getImageDataById(id, callback) {
-  var query = "SELECT Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = '" + id + "';";
+  var query = "SELECT Users.username, Images.title, Images.path, DATE_FORMAT(Images.uploadDateTime, '%H:%i:%s %d/%m/%y') as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = '" + id + "';";
   connection.query(query, done);
 
   //callback function
@@ -105,8 +105,11 @@ function getImageDataById(id, callback) {
 }
 module.exports.getImageDataById = getImageDataById;
 
-function getImageCommentsById(imageID, callback) {
-  var query = "SELECT Users.username, Comments.imageID, Comments.text FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = '" + imageID + "' ORDER BY Comments.commentID DESC;";
+
+/*************COMMENTS*******************/
+
+function getCommentsByImageID(imageID, callback) {
+  var query = "SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(Comments.postDateTime, '%H:%i:%s %d/%m/%y') as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = '" + imageID + "' ORDER BY Comments.commentID;";
   connection.query(query, done);
 
   //callback function
@@ -115,7 +118,7 @@ function getImageCommentsById(imageID, callback) {
     callback(result);
   };
 }
-module.exports.getImageCommentsById = getImageCommentsById;
+module.exports.getCommentsByImageID = getCommentsByImageID;
 
 function insertCommentEntry(userID, imageID, text, callback) {
   var query = "INSERT INTO Comments ( userID, imageID, text ) VALUES ( '" + userID + "', '" + imageID + "', '" + text + "' );";
@@ -138,6 +141,17 @@ function addCommentToImage(username, imageID, text, callback) {
 }
 module.exports.addCommentToImage = addCommentToImage;
 
+function getUserComments(username, callback) {
+  var query = "SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(postDateTime, '%H:%i:%s %d/%m/%y') as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = '" + username + "';";
+  connection.query(query, done);
+
+  //callback function
+  function done(err, results) {
+    if(err) throw err;
+    callback(results);
+  }
+}
+module.exports.getUserComments = getUserComments;
 
 
 /*************CRYPTO FUNCTIONS***************/
@@ -360,7 +374,7 @@ module.exports.getSessionUsername = getSessionUsername;
 
 
 function getUserData(username, callback) {
-  var query = 'SELECT DATE_FORMAT(signupDate, "%d/%m/%y") as signupDate FROM Users WHERE username = "' + username + '";';
+  var query = 'SELECT DATE_FORMAT(signupDateTime, "%H:%i:%s %d/%m/%y") as signupDateTime FROM Users WHERE username = "' + username + '";';
   connection.query(query, done);
 
   //callback function

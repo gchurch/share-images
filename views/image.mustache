@@ -3,7 +3,24 @@
 <div>
   <img src='/images/uploads/{{image.path}}'' alt='An image.'/>
 </div>
+<p>{{image.uploadDateTime}}</p>
 <h3>Comments</h3>
+<div>
+  <table>
+    <tr>
+      <th>Comment</th>
+      <th>Time</th>
+      <th>User</th>
+    </tr>
+    {{#comments}}
+    <tr>
+      <td>{{text}}</td>
+      <td>{{postDateTime}}</td>
+      <td><a href="/user/{{username}}">{{username}}</a></td>
+    </tr>
+    {{/comments}}
+  </table>
+</div>
 <div>
   <form method='POST'>
     <div>
@@ -13,18 +30,4 @@
       <input type='submit' value='Submit'></input>
     </div>
   </form>
-</div>
-<div>
-  <table>
-    <tr>
-      <th>Comment</th>
-      <th>User</th>
-    </tr>
-    {{#comments}}
-    <tr>
-      <td>{{text}}</td>
-      <td>{{username}}</td>
-    </tr>
-    {{/comments}}
-  </table>
 </div>

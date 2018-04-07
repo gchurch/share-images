@@ -7,7 +7,7 @@ CREATE TABLE Users (
   salt char(128) NOT NULL,
   iterations INT NOT NULL,
   login_key char(128) NOT NULL,
-  signupDate DATETIME DEFAULT NOW(),
+  signupDateTime DATETIME DEFAULT NOW(),
   PRIMARY KEY (userID)
 );
 CREATE TABLE Sessions (
@@ -22,6 +22,7 @@ CREATE TABLE Images (
   userID INT NOT NULL,
   title VARCHAR(100) NOT NULL,
   path VARCHAR(100) NOT NULL,
+  uploadDateTime DATETIME DEFAULT NOW(),
   PRIMARY KEY (imageID),
   FOREIGN KEY (userID) REFERENCES Users(userID)
 );
@@ -30,6 +31,7 @@ CREATE TABLE Comments (
   userID INT NOT NULL,
   imageID INT NOT NULL,
   text VARCHAR(200) NOT NULL,
+  postDateTime DATETIME DEFAULT NOW(),
   PRIMARY KEY (commentID),
   FOREIGN KEY (userID) REFERENCES Users(userID),
   FOREIGN KEY (imageID) REFERENCES Images(imageID)

@@ -4,19 +4,4 @@ h2, h3 {
 
 img {
 	max-width: 70%;
-	padding-bottom: 3%;
-}
-
-table {
-	width: 100%;
-}
-
-table, td, th {
-	border: 1px solid black;
-}
-
-textarea {
-	width: 50%;
-	height: 4em;
-	resize: none;
 }

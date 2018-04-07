@@ -16,7 +16,7 @@ function getImageData(req, res, next) {
   //callback function
   function done(result) {
     if(result[0]) {
-      res.image = result[0];
+      res.imageData = result[0];
     }
     next();
   }
@@ -25,7 +25,7 @@ function getImageData(req, res, next) {
 //retrieve all of the comments for the requested image
 function getImageComments(req, res, next) {
   var id = req.params.id;
-  database.getImageCommentsById(id, done);
+  database.getCommentsByImageID(id, done);
 
   //callback function
   function done(result) {
@@ -38,7 +38,7 @@ function getImageComments(req, res, next) {
 
 //load the file containing the template of the page
 function loadImagePageTemplate(req, res, next) {
-  if(res.image) {
+  if(res.imageData) {
     fs.readFile("views/image.mustache", "utf8", done);
   }
   else {
@@ -55,14 +55,14 @@ function loadImagePageTemplate(req, res, next) {
 
 //render the template with the data retreived from the database
 function renderImagePageTemplate(req, res, next) {
-  if(res.image) {
-    res.pageContent = mustache.render(res.pageContent, {image: res.image, comments: res.comments});
+  if(res.imageData) {
+    res.pageContent = mustache.render(res.pageContent, {image: res.imageData, comments: res.comments});
   }
   next();
 }
 
 //GET request for a specfic image id
-var stylesheets = [{href: "image.css"}];
+var stylesheets = [{href: "image.css"},{href: "comments.css"}];
 var scripts = [];
 router.get('/:id', getImageData, getImageComments, loadImagePageTemplate, renderImagePageTemplate, mw.renderPage(stylesheets, scripts));
 

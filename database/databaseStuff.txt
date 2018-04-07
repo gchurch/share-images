@@ -22,7 +22,7 @@ SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN
 
 SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;
 
-SELECT Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = 5;
+SELECT Users.username, Images.title, Images.path, Images.uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = 5;
 
 SELECT Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = 'geochu';
 
@@ -30,4 +30,6 @@ SELECT Users.username, Images.title, Images.path FROM Users JOIN Images ON Users
 
 INSERT INTO Comments ( userID, imageID, text) VALUES ( value1, value2, value3 );
 
-SELECT Users.username, Comments.imageID, Comments.text FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = 5 ORDER BY Comments.commentID DESC;
+SELECT Users.username, Comments.imageID, Comments.text, Comments.postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = 5 ORDER BY Comments.commentID DESC;
+
+SELECT Users.username, Comments.imageID, Comments.text From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = 'geochu';
