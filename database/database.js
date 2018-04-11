@@ -5,6 +5,7 @@ var fs = require('fs');
 var crypto = require('crypto');
 
 var connection = mysql.createConnection({
+  multipleStatements: true,
   host: "localhost",
   user: "root",
   password: "password",
@@ -24,9 +25,10 @@ function connectToDatabase() {
   connection.connect(function(err) {
     if (err) {
       console.log('error connecting to database: ' + err.stack);
-  	    return;
-      }
+  	  return;
+    }
     console.log('connected to database');
+    createServerSidePreparedStatements();
   });
 }
 module.exports.connectToDatabase = connectToDatabase;
@@ -40,6 +42,21 @@ function endDatabaseConnection() {
 module.exports.endDatabaseConnection = endDatabaseConnection;
 
 
+
+/*************PREPARED STATEMENTS*************/
+
+
+
+function createServerSidePreparedStatements() {
+  var query = "PREPARE insertComment FROM 'INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );';";
+  connection.query(query, done);
+
+  //callback function
+  function done(err) {
+    if(err) throw err;
+    console.log("Prepared statements done.");
+  }
+}
 
 /*************IMAGE DATA FUNCTIONS************/
 
@@ -106,7 +123,10 @@ function getImageDataById(id, callback) {
 module.exports.getImageDataById = getImageDataById;
 
 
+
 /*************COMMENTS*******************/
+
+
 
 function getCommentsByImageID(imageID, callback) {
   var query = "SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(Comments.postDateTime, '%H:%i:%s %d/%m/%y') as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = '" + imageID + "' ORDER BY Comments.commentID;";
@@ -121,8 +141,8 @@ function getCommentsByImageID(imageID, callback) {
 module.exports.getCommentsByImageID = getCommentsByImageID;
 
 function insertCommentEntry(userID, imageID, text, callback) {
-  var query = "INSERT INTO Comments ( userID, imageID, text ) VALUES ( '" + userID + "', '" + imageID + "', '" + text + "' );";
-  connection.query(query, done);
+  var query = "SET @userID = ?; SET @imageID = ?; SET @text = ?; EXECUTE insertComment USING @userID, @imageID, @text;";
+  connection.query(query, [userID, imageID, text], done);
 
   //callback function
   function done(err) {

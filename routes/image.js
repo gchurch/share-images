@@ -75,7 +75,6 @@ function addCommentToDatabase(req, res, next) {
 
     //callback function
     function done() {
-      console.log("New comment added.");
       next();
     }
   }

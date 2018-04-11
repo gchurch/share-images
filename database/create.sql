@@ -1,6 +1,7 @@
 DROP DATABASE ShareImages;
 CREATE DATABASE ShareImages;
 USE ShareImages;
+
 CREATE TABLE Users (
   userID INT NOT NULL AUTO_INCREMENT,
   username varchar(20) NOT NULL UNIQUE,
@@ -10,6 +11,7 @@ CREATE TABLE Users (
   signupDateTime DATETIME DEFAULT NOW(),
   PRIMARY KEY (userID)
 );
+
 CREATE TABLE Sessions (
   sessionID INT NOT NULL AUTO_INCREMENT,
   userID INT NOT NULL,
@@ -17,6 +19,7 @@ CREATE TABLE Sessions (
   PRIMARY KEY (sessionID),
   FOREIGN KEY (userID) REFERENCES Users(userID)
 );
+
 CREATE TABLE Images (
   imageID INT NOT NULL AUTO_INCREMENT,
   userID INT NOT NULL,
@@ -26,6 +29,8 @@ CREATE TABLE Images (
   PRIMARY KEY (imageID),
   FOREIGN KEY (userID) REFERENCES Users(userID)
 );
+
+
 CREATE TABLE Comments (
   commentID INT NOT NULL AUTO_INCREMENT,
   userID INT NOT NULL,
