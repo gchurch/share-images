@@ -52,7 +52,21 @@ function createServerSidePreparedStatements() {
   "PREPARE insertIntoComments FROM 'INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );';" +
   "PREPARE insertIntoImages FROM 'INSERT INTO Images ( userID, title, path ) VALUES ( ?, ? ,? );';" +
   "PREPARE insertIntoUsers FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ?);';" + 
-  "PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);';";
+  "PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);';" + 
+  "PREPARE selectLatestImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;';" +
+  "PREPARE selectAllImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;';" +
+  "PREPARE checkUsernameExists FROM 'SELECT username FROM Users WHERE username = ? LIMIT 1;';" +
+  "PREPARE selectLoginInfo FROM 'SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;';" +
+  "PREPARE deleteSessionByCookie FROM 'DELETE FROM Sessions WHERE cookie = ? LIMIT 1;';" + 
+  "PREPARE selectUserIDFromUsername FROM 'SELECT userID FROM Users WHERE username = ? LIMIT 1;';" +
+  "PREPARE deleteSessionByUserID FROM 'DELETE FROM Sessions WHERE userID = ? LIMIT 1;';" +
+  "PREPARE selectUserIDByCookie FROM 'SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;';" +
+  "PREPARE selectUsernameByUserID FROM 'SELECT username FROM Users WHERE userID = ? LIMIT 1;';" +
+  "PREPARE selectImagesByUser FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;';" +
+  "PREPARE selectImageByImageID FROM 'SELECT Users.username, Images.title, Images.path, DATE_FORMAT(Images.uploadDateTime, \"%H:%i:%s %d/%m/%y\") as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;';" +
+  "PREPARE selectCommentsByImageID FROM 'SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(Comments.postDateTime, \"%H:%i:%s %d/%m/%y\") as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;';" +
+  "PREPARE selectCommentsByUsername FROM 'SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(postDateTime, \"%H:%i:%s %d/%m/%y\") as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;';" +
+  "PREPARE selectUserData FROM 'SELECT DATE_FORMAT(signupDateTime, \"%H:%i:%s %d/%m/%y\") as signupDateTime FROM Users WHERE username = ?;';";
   connection.query(query, done);
 
   //callback function
@@ -67,20 +81,23 @@ function createServerSidePreparedStatements() {
 
 
 function getLatestImages(callback) {
-  var query = "SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT " + imageLimit + ";";
-  connection.query(query, done);
+  var query = 
+    "SET @imageLimit = ?;" + 
+    "EXECUTE selectLatestImages USING @imageLimit;";
+  connection.query(query, [imageLimit], done);
 
   //callback function
   function done(err, result) {
     if (err) throw err;
-    callback(result);
+    callback(result[1]);
   };
 }
 module.exports.getLatestImages = getLatestImages;
 
 //callback function recieves all of the image data in the database
 function getAllImages(callback) {
-  var query = "SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;";
+  var query = 
+    "EXECUTE selectAllImages;";
   connection.query(query, done);
 
   //callback function
@@ -92,7 +109,11 @@ function getAllImages(callback) {
 module.exports.getAllImages = getAllImages;
 
 function insertImageEntry(userID, title, path, callback) {
-  var query = "SET @userID = ?; set @title = ?; set @path = ?; EXECUTE insertIntoImages USING @userID, @title, @path;";
+  var query = 
+    "SET @userID = ?;" + 
+    "SET @title = ?;" +
+    "SET @path = ?;" + 
+    "EXECUTE insertIntoImages USING @userID, @title, @path;";
   connection.query(query, [userID, title, path], done);
 
   //callback function
@@ -114,14 +135,16 @@ function addImage(username, title, path, callback) {
 module.exports.addImage = addImage;
 
 //get individual image data
-function getImageDataById(id, callback) {
-  var query = "SELECT Users.username, Images.title, Images.path, DATE_FORMAT(Images.uploadDateTime, '%H:%i:%s %d/%m/%y') as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = '" + id + "';";
-  connection.query(query, done);
+function getImageDataById(imageID, callback) {
+  var query = 
+    "SET @imageID = ?;" +
+    "EXECUTE selectImageByImageID USING @imageID;";
+  connection.query(query, [imageID], done);
 
   //callback function
   function done(err, result) {
     if (err) throw err;
-    callback(result);
+    callback(result[1]);
   };
 }
 module.exports.getImageDataById = getImageDataById;
@@ -133,19 +156,25 @@ module.exports.getImageDataById = getImageDataById;
 
 
 function getCommentsByImageID(imageID, callback) {
-  var query = "SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(Comments.postDateTime, '%H:%i:%s %d/%m/%y') as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = '" + imageID + "' ORDER BY Comments.commentID;";
-  connection.query(query, done);
+  var query = 
+    "SET @imageID = ?;" +
+    "EXECUTE selectCommentsByImageID USING @imageID;"
+  connection.query(query, [imageID], done);
 
   //callback function
   function done(err, result) {
     if (err) throw err;
-    callback(result);
+    callback(result[1]);
   };
 }
 module.exports.getCommentsByImageID = getCommentsByImageID;
 
 function insertCommentEntry(userID, imageID, text, callback) {
-  var query = "SET @userID = ?; SET @imageID = ?; SET @text = ?; EXECUTE insertIntoComments USING @userID, @imageID, @text;";
+  var query = 
+    "SET @userID = ?;" + 
+    "SET @imageID = ?;" + 
+    "SET @text = ?;" + 
+    "EXECUTE insertIntoComments USING @userID, @imageID, @text;";
   connection.query(query, [userID, imageID, text], done);
 
   //callback function
@@ -166,13 +195,15 @@ function addCommentToImage(username, imageID, text, callback) {
 module.exports.addCommentToImage = addCommentToImage;
 
 function getUserComments(username, callback) {
-  var query = "SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(postDateTime, '%H:%i:%s %d/%m/%y') as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = '" + username + "';";
-  connection.query(query, done);
+  var query = 
+    "SET @username = ?;" +
+    "EXECUTE selectCommentsByUsername USING @username;"
+  connection.query(query, [username], done);
 
   //callback function
   function done(err, results) {
     if(err) throw err;
-    callback(results);
+    callback(results[1]);
   }
 }
 module.exports.getUserComments = getUserComments;
@@ -218,13 +249,15 @@ function createAccount(username, password, callback) {
 module.exports.createAccount = createAccount;
 
 function checkUsernameAlreadyExists(username, callback) {
-  var query = "SELECT username FROM Users WHERE username='" + username + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @username = ?;" + 
+    "EXECUTE checkUsernameExists USING @username;";
+  connection.query(query, [username], done);
 
   //callback function
   function done(err, result, fields) {
     if(err) throw err;
-    if(result[0]) {
+    if(result[1][0]) {
       callback(true);
     } else {
       callback(false);
@@ -240,15 +273,17 @@ module.exports.checkUsernameAlreadyExists = checkUsernameAlreadyExists;
 
 
 function checkLoginDetails(username, password, callback) {
-  var query = "SELECT salt, iterations, login_key FROM Users WHERE username='" + username + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @username = ?;" +
+    "EXECUTE selectLoginInfo USING @username;";
+  connection.query(query, [username], done);
 
   //callback function
   function done(err, result, fields) {
     if(err) throw err;
     //check the password matches
-    if(result[0]) {
-      if(saltHashAndStretch(password, result[0].salt, result[0].iterations) == result[0].login_key) {
+    if(result[1][0]) {
+      if(saltHashAndStretch(password, result[1][0].salt, result[1][0].iterations) == result[1][0].login_key) {
         callback(true);
       }
       else {
@@ -264,8 +299,10 @@ module.exports.checkLoginDetails = checkLoginDetails;
 
 
 function deleteSessionByCookie(cookie, callback) {
-  var query = "DELETE FROM Sessions WHERE cookie = '" + cookie + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @cookie = ?;" + 
+    "EXECUTE deleteSessionByCookie USING @cookie;";
+  connection.query(query, [cookie], done);
 
   //callback function
   function done() {
@@ -275,14 +312,16 @@ function deleteSessionByCookie(cookie, callback) {
 module.exports.deleteSessionByCookie = deleteSessionByCookie;
 
 function getUserIDFromUsername(username, callback) {
-  var query = "SELECT userID FROM Users WHERE username='" + username + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @username = ?;" +
+    "EXECUTE selectUserIDFromUsername USING @username;";
+  connection.query(query, [username], done);
 
   //callback function
   function done(err, result) {
     if(err) throw err;
-    if(result[0]) {
-      callback(result[0].userID);
+    if(result[1][0]) {
+      callback(result[1][0].userID);
     }
     else {
       callback(null);
@@ -291,8 +330,10 @@ function getUserIDFromUsername(username, callback) {
 }
 
 function deleteSessionByUserID(userID, callback) {
-  var query = "DELETE FROM Sessions WHERE userID = '" + userID + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @userID = ?;" +
+    "EXECUTE deleteSessionByUserID USING @userID;";
+  connection.query(query, [userID], done);
 
   //callback function
   function done(err, result) {
@@ -302,7 +343,10 @@ function deleteSessionByUserID(userID, callback) {
 }
 
 function insertSessionEntry(cookie, userID, callback) {
-  var query = "SET @cookie = ?; SET @userID = ?; EXECUTE insertIntoSessions USING @cookie, @userID;";
+  var query = 
+    "SET @cookie = ?;" + 
+    "SET @userID = ?;" + 
+    "EXECUTE insertIntoSessions USING @cookie, @userID;";
   connection.query(query, [cookie, userID], done);
 
   //callback function
@@ -343,14 +387,16 @@ function createSession(username, callback) {
 module.exports.createSession = createSession;
 
 function getUserIDFromCookie(cookie, callback) {
-  var query = "SELECT userID FROM Sessions WHERE cookie = '" + cookie + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @cookie = ?;" +
+    "EXECUTE selectUserIDByCookie USING @cookie;";
+  connection.query(query, [cookie], done);
 
   //callback function
   function done(err, result) {
     if(err) throw err;
-    if(result[0]) {
-      callback(result[0].userID);
+    if(result[1][0]) {
+      callback(result[1][0].userID);
     }
     else {
       callback(null);
@@ -359,13 +405,15 @@ function getUserIDFromCookie(cookie, callback) {
 }
 
 function getUsernameFromUserID(userID, callback) {
-  var query = "SELECT username FROM Users WHERE userID='" + userID + "' LIMIT 1;";
-  connection.query(query, done);
+  var query = 
+    "SET @userID = ?;" +
+    "EXECUTE selectUsernameByUserID USING @userID;";
+  connection.query(query, [userID], done);
 
   //callback function
   function done(err, result) {
     if(err) throw err;
-    callback(result[0].username);
+    callback(result[1][0].username);
   }
 }
 
@@ -403,14 +451,16 @@ module.exports.getSessionUsername = getSessionUsername;
 
 
 function getUserData(username, callback) {
-  var query = 'SELECT DATE_FORMAT(signupDateTime, "%H:%i:%s %d/%m/%y") as signupDateTime FROM Users WHERE username = "' + username + '";';
-  connection.query(query, done);
+  var query = 
+    "SET @username = ?;" +
+    "EXECUTE selectUserData USING @username;"
+  connection.query(query, [username], done);
 
   //callback function
   function done(err, results) {
     if(err) throw err;
-    if(results[0]) {
-      callback(results[0]);
+    if(results[1][0]) {
+      callback(results[1][0]);
     }
     else {
       callback(null);
@@ -420,13 +470,15 @@ function getUserData(username, callback) {
 module.exports.getUserData = getUserData;
 
 function getUserImages(username, callback) {
-  var query = "SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = '" + username + "';";
-  connection.query(query, done);
+  var query = 
+    "SET @username = ?;" +
+    "EXECUTE selectImagesByUser USING @username;";
+  connection.query(query, [username], done);
 
   //callback function
   function done(err, results) {
     if(err) throw err;
-    callback(results);
+    callback(results[1]);
   }
 }
 module.exports.getUserImages = getUserImages;

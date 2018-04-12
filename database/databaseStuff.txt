@@ -40,11 +40,23 @@ SELECT Users.username, Comments.imageID, Comments.text From Users JOIN Comments 
 
 
 
+PREPARE selectLatestImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;';
+SET @imageLimit = 6;
+EXECUTE selectLatestImages USING @imageLimit;
+
+PREPARE selectAllImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;';
+EXECUTE selectAllImages;
+
 PREPARE insertIntoImages FROM 'INSERT INTO Images ( userID, title, path ) VALUES ( ?, ? ,? );';
 SET @userID = ?;
-set @title = ?;
-set @path = ?;
+SET @title = ?;
+SET @path = ?;
 EXECUTE insertIntoImages USING @userID, @title, @path;
+
+PREPARE selectImageByID FROM 'SELECT Users.username, Images.title, Images.path, DATE_FORMAT(Images.uploadDateTime, '%H:%i:%s %d/%m/%y') as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;';
+SET imageID = ?;
+EXECUTE selectImageByID USING @imageID;
+
 
 PREPARE insertIntoComments FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ? );';
 SET @username = ;
@@ -60,7 +72,55 @@ SET @iterations = ?;
 SET @login_key = ?;
 EXECUTE insertIntoUsers USING @username, @salt, @iterations, @login_key;
 
+PREPARE checkUsernameExists FROM 'SELECT username FROM Users WHERE username = ? LIMIT 1;';
+SET @username = ?;
+EXECUTE checkUsernameExists USING @username;
+
+PREPARE selectLoginInfo FROM 'SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;';
+SET @username = ?;
+EXECUTE selectLoginInfo USING @username;
+
+PREPARE deleteSessionByCookie FROM 'DELETE FROM Sessions WHERE cookie = ? LIMIT 1;';
+SET @cookie = ?;
+EXECUTE deleteSessionByCookie USING @cookie;
+
+PREPARE selectUserIDFromUsername FROM 'SELECT userID FROM Users WHERE username = ? LIMIT 1;';
+SET @username = ?;
+EXECUTE selectUserIDFromUsername USING @username;
+
+PREPARE deleteSessionByUserID FROM 'DELETE FROM Sessions WHERE userID = ? LIMIT 1;';
+SET @userID = ?;
+EXECUTE deleteSessionByUserID USING @userID;
+
+PREPARE selectUserIDByCookie FROM 'SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;';
+SET @cookie = ?;
+EXECUTE selectUserIDByCookie USING @cookie;
+
+PREPARE selectUsernameByUserID FROM 'SELECT username FROM Users WHERE userID = ? LIMIT 1;';
+SET @userID = ?;
+EXECUTE selectUsernameByUserID USING @userID;
+
+PREPARE selectImagesByUser FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;';
+SET @username = ?;
+EXECUTE selectImagesByUser USING @username;
+
 PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?, ?);';
 SET @cookie = ?;
 SET @userID = ?;
 EXECUTE insertIntoSessions USING @cookie, @userID;
+
+PREPARE selectImageByImageID FROM 'SELECT Users.username, Images.title, Images.path, DATE_FORMAT(Images.uploadDateTime, \"%H:%i:%s %d/%m/%y\") as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;';
+SET @imageID = ?;
+EXECUTE selectImageByImageID USING @imageID;
+
+PREPARE selectCommentsByImageID FROM 'SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(Comments.postDateTime, \"%H:%i:%s %d/%m/%y\") as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;';
+SET @imageID = ?;
+EXECUTE selectCommentsByImageID USING @imageID;
+
+PREPARE selectCommentsByUsername FROM 'SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(postDateTime, \"%H:%i:%s %d/%m/%y\") as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;';
+SET @username = ?;
+EXECUTE selectCommentsByUsername USING @username;
+
+PREPARE selectUserData FROM 'SELECT DATE_FORMAT(signupDateTime, \"%H:%i:%s %d/%m/%y\") as signupDateTime FROM Users WHERE username = ?;';
+SET @username = ?;
+EXECUTE selectUserData USING @username;
