@@ -34,25 +34,33 @@ SELECT Users.username, Comments.imageID, Comments.text, Comments.postDateTime FR
 
 SELECT Users.username, Comments.imageID, Comments.text From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = 'geochu';
 
+
+
 //prepared statements
 
-PREPARE stmt1 FROM 'SELECT * FROM Users WHERE username='?';';
-SET @username = 'geochu';
-EXECUTE stmt1 USING @username;
 
-PREPARE stmt1 FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ? );';
+
+PREPARE insertIntoImages FROM 'INSERT INTO Images ( userID, title, path ) VALUES ( ?, ? ,? );';
+SET @userID = ?;
+set @title = ?;
+set @path = ?;
+EXECUTE insertIntoImages USING @userID, @title, @path;
+
+PREPARE insertIntoComments FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ? );';
 SET @username = ;
 SET @salt = ;
 SET @iterations = ;
 SET @login_key = ;
-EXECTUTE stmt1 USING @username, @salt, @iterations, @login_key;
+EXECTUTE insertIntoComments USING @username, @salt, @iterations, @login_key;
 
-PREPARE stmt2 FROM 'SELECT userID FROM Users WHERE username = ? ;';
-SET @username = ;
-EXECUTE stmt2 USING @username;
+PREPARE insertIntoUsers FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ?);';
+SET @username = ?;
+SET @salt = ?;
+SET @iterations = ?;
+SET @login_key = ?;
+EXECUTE insertIntoUsers USING @username, @salt, @iterations, @login_key;
 
-PREPARE stmt3 FROM 'INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );';
-SET @userID = 1;
-SET @imageID = 1;
-SET @text = 'cool';
-EXECUTE stmt3 USING @userID, @imageID, @text;
+PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?, ?);';
+SET @cookie = ?;
+SET @userID = ?;
+EXECUTE insertIntoSessions USING @cookie, @userID;

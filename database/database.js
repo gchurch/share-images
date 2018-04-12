@@ -48,7 +48,11 @@ module.exports.endDatabaseConnection = endDatabaseConnection;
 
 
 function createServerSidePreparedStatements() {
-  var query = "PREPARE insertComment FROM 'INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );';";
+  var query = 
+  "PREPARE insertIntoComments FROM 'INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );';" +
+  "PREPARE insertIntoImages FROM 'INSERT INTO Images ( userID, title, path ) VALUES ( ?, ? ,? );';" +
+  "PREPARE insertIntoUsers FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ?);';" + 
+  "PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);';";
   connection.query(query, done);
 
   //callback function
@@ -88,8 +92,8 @@ function getAllImages(callback) {
 module.exports.getAllImages = getAllImages;
 
 function insertImageEntry(userID, title, path, callback) {
-  var query = "INSERT INTO Images ( userID, title, path ) VALUES ( '" + userID + "', '" + title + "', '" + path + "' );";
-  connection.query(query, done);
+  var query = "SET @userID = ?; set @title = ?; set @path = ?; EXECUTE insertIntoImages USING @userID, @title, @path;";
+  connection.query(query, [userID, title, path], done);
 
   //callback function
   function done(err) {
@@ -141,7 +145,7 @@ function getCommentsByImageID(imageID, callback) {
 module.exports.getCommentsByImageID = getCommentsByImageID;
 
 function insertCommentEntry(userID, imageID, text, callback) {
-  var query = "SET @userID = ?; SET @imageID = ?; SET @text = ?; EXECUTE insertComment USING @userID, @imageID, @text;";
+  var query = "SET @userID = ?; SET @imageID = ?; SET @text = ?; EXECUTE insertIntoComments USING @userID, @imageID, @text;";
   connection.query(query, [userID, imageID, text], done);
 
   //callback function
@@ -196,9 +200,14 @@ function saltHashAndStretch(password, salt, iterations) {
 function createAccount(username, password, callback) {
   var salt = randomData();
   var iterations = 100000;
-  var key = saltHashAndStretch(password, salt, iterations);
-  var query = "INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( '" + username + "', '" + salt + "', '" + iterations + "', '" + key + "' );";
-  connection.query(query, done);
+  var login_key = saltHashAndStretch(password, salt, iterations);
+  var query = 
+    "SET @username = ?;" + 
+    "SET @salt = ?;" + 
+    "SET @iterations = ?;" + 
+    "SET @login_key = ?;" + 
+    "EXECUTE insertIntoUsers USING @username, @salt, @iterations, @login_key;";
+  connection.query(query, [username, salt, iterations, login_key], done);
 
   //callback function
   function done(err) {
@@ -293,8 +302,8 @@ function deleteSessionByUserID(userID, callback) {
 }
 
 function insertSessionEntry(cookie, userID, callback) {
-  var query = "INSERT INTO Sessions ( cookie, userID ) VALUES ( '" + cookie + "', '" + userID + "' );";
-  connection.query(query, done);
+  var query = "SET @cookie = ?; SET @userID = ?; EXECUTE insertIntoSessions USING @cookie, @userID;";
+  connection.query(query, [cookie, userID], done);
 
   //callback function
   function done(err, result) {
