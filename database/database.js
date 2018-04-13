@@ -20,26 +20,22 @@ var imageLimit = 6;
 
 
 
-//connect the server to the database
+//connect the server to the mysql database
 function connectToDatabase() {
-  connection.connect(function(err) {
+  connection.connect(done);
+
+  function done(err) {
     if (err) {
       console.log('error connecting to database: ' + err.stack);
-  	  return;
     }
-    console.log('connected to database');
-    createServerSidePreparedStatements();
-  });
+    else {
+      console.log('connected to database');
+      //create all the prepared statements, these will be used for all of our queries
+      createServerSidePreparedStatements();
+    }
+  };
 }
 module.exports.connectToDatabase = connectToDatabase;
-
-//end the servers connection to the database
-function endDatabaseConnection() {
-  connection.end(function(err) {
-    console.log('connection to database closed')
-  })
-}
-module.exports.endDatabaseConnection = endDatabaseConnection;
 
 
 

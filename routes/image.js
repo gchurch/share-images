@@ -7,6 +7,9 @@ var mustache = require("mustache");
 var database = require("./../database/database.js");
 var mw = require("./../middleware.js");
 
+//max number of characters for a comment
+var maxCommentLength = 100;
+
 
 //retrieve the requested image data from the database
 function getImageData(req, res, next) {
@@ -56,7 +59,7 @@ function loadImagePageTemplate(req, res, next) {
 //render the template with the data retreived from the database
 function renderImagePageTemplate(req, res, next) {
   if(res.imageData) {
-    res.pageContent = mustache.render(res.pageContent, {image: res.imageData, comments: res.comments});
+    res.pageContent = mustache.render(res.pageContent, {image: res.imageData, comments: res.comments, maxCommentLength: maxCommentLength});
   }
   next();
 }
@@ -70,7 +73,7 @@ router.get('/:id', getImageData, getImageComments, loadImagePageTemplate, render
 //Add comment to the database
 function addCommentToDatabase(req, res, next) {
   //check that the comment actually contains some text and also that the use is logged in to an account
-  if(req.body.text && res.username) {
+  if(req.body.text && res.username && req.body.text.length <= maxCommentLength) {
     database.addCommentToImage(res.username, req.params.id, req.body.text, done);
 
     //callback function

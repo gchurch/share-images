@@ -1,14 +1,15 @@
 <h1>Signup</h1>
 <div>
+  <p>Your username must contain only letters and numbers.</p>
   <form method='POST'>
     <div>
-      username:<input type='text' name='username'></input>
+      username:<input type='text' name='username' maxlength="{{usernameMaxLength}}">
     </div>
     <div>
-      password:<input type='password' name='password'></input>
+      password:<input type='password' name='password' maxlength="{{passwordMaxLength}}">
     </div>
     <div>
-      <input type='submit' value='signup'></input>
+      <input type='submit' value='signup'>
     </div>
   </form>
 </div>

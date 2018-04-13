@@ -10,6 +10,8 @@ var mw = require("./../middleware");
 var multer = require('multer');
 var upload = multer({dest: 'public/images/uploads/'});
 
+var imageTitleMaxLength = 30;
+
 //load the index page content
 function loadUploadTemplate(req, res, next) {
 	fs.readFile("views/upload.mustache", "utf8", done);
@@ -46,10 +48,15 @@ function loadUploadSucceededTemplate(req, res, next) {
   }
 }
 
+function renderUploadTemplate(req, res, next) {
+  res.pageContent = mustache.render(res.pageContent, {imageTitleMaxLength: imageTitleMaxLength});
+  next();
+}
+
 //GET requests for upload pages
 var stylesheets = [{href: "upload.css"}];
 var scripts = [];
-router.get('/', loadUploadTemplate, mw.renderPage(stylesheets, scripts));
+router.get('/', loadUploadTemplate, renderUploadTemplate, mw.renderPage(stylesheets, scripts));
 router.get('/failed', loadUploadFailedTemplate, mw.renderPage(stylesheets, scripts));
 router.get('/succeeded', loadUploadSucceededTemplate, mw.renderPage(stylesheets, scripts));
 
@@ -57,7 +64,7 @@ router.get('/succeeded', loadUploadSucceededTemplate, mw.renderPage(stylesheets,
 //add provided image and info to the database
 function addImageToDatabase(req, res, next) {
   //if an image was provided then add an entry to the database
-  if(req.file && res.username) {
+  if(req.file && res.username && req.body.image_title.length <= imageTitleMaxLength) {
     //if no title is given then call the image "untitled"
     if(req.body.image_title == "") {
       req.body.image_title = "untitled";

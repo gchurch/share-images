@@ -2,13 +2,13 @@
 <div>
   <form method='POST'>
     <div>
-      username:<input type='text' name='username'></input>
+      username:<input type='text' name='username' maxlength="{{usernameMaxLength}}">
     </div>
     <div>
-      password:<input type='password' name='password'></input>
+      password:<input type='password' name='password' maxlength="{{passwordMaxLength}}">
     </div>
     <div>
-      <input type='submit' value='login'></input>
+      <input type='submit' value='login'>
     </div>
   </form>
 </div>

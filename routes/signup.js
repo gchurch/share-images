@@ -7,13 +7,16 @@ var mustache = require("mustache");
 var database = require("./../database/database.js");
 var mw = require("./../middleware.js");
 
+var usernameMaxLength = 20;
+var passwordMaxLength = 20;
+
 //load the signup page
 function loadSignupTemplate(req, res, next) {
   fs.readFile("views/signup.mustache", "utf8", done);
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -25,7 +28,7 @@ function loadSignupSuccessTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -37,7 +40,7 @@ function loadSignupFailTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -45,7 +48,11 @@ function loadSignupFailTemplate(req, res, next) {
 
 //render the login page template
 function renderSignupTemplate(req, res, next) {
-  res.pageContent = mustache.render(res.pageContent, {results: res.result});
+  var view = {
+    usernameMaxLength: usernameMaxLength,
+    passwordMaxLength: passwordMaxLength
+  }
+  res.pageContent = mustache.render(res.pageContent, view);
   next();
 }
 
@@ -67,21 +74,26 @@ function checkUsernameAlreadyExists(req, res, next) {
   };
 }
 
+function usernameTest(username) {
+  return /^[a-z0-9]+$/i.test(username);
+}
+
 //create the account
 function createAccount(req, res, next) {
   //if the username and password are not empty strings
-  if(!req.usernameAlreadyExists && req.body.username != '' && req.body.password != '') {
+  if(!req.usernameAlreadyExists && req.body.username.length > 0 && req.body.username.length <= usernameMaxLength && 
+     usernameTest(req.body.username) && req.body.password.length > 0 && req.body.password.length <= passwordMaxLength)
+  {
     database.createAccount(req.body.username, req.body.password, done);
     
     //callback function
     function done() {
-      console.log("Account with username '" + req.body.username + "' has been created.");
+      console.log(req.body.username + " signed up.");
       res.signup = true;
       next();
     }
   } 
   else {
-  	console.log("Signup failed.");
     res.signup = false;
   	next();
   }

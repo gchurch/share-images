@@ -7,13 +7,16 @@ var mustache = require("mustache");
 var database = require("./../database/database.js");
 var mw = require("./../middleware.js");
 
+var usernameMaxLength = 20;
+var passwordMaxLength = 20;
+
 //load the login page template
 function loadLoginTemplate(req, res, next) {
   fs.readFile("views/login.mustache", "utf8", done);
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -25,7 +28,7 @@ function loadLoginSuccessTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -37,7 +40,7 @@ function loadLoginFailTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -45,7 +48,11 @@ function loadLoginFailTemplate(req, res, next) {
 
 //render the login page template
 function renderLoginTemplate(req, res, next) {
-  res.pageContent = mustache.render(res.pageContent, {results: res.result});
+  var view = {
+    usernameMaxLength: usernameMaxLength,
+    passwordMaxLength: passwordMaxLength
+  };
+  res.pageContent = mustache.render(res.pageContent, view);
   next();
 }
 
@@ -59,17 +66,24 @@ router.get('/success', loadLoginSuccessTemplate, renderLoginTemplate, mw.renderP
 
 //check that the given login details match an account on the database
 function checkLoginDetails(req, res, next) {
-  database.checkLoginDetails(req.body.username, req.body.password, done);
+  if(req.body.username.length > 0 && req.body.username.length <= usernameMaxLength && 
+     req.body.password.length > 0 && req.body.password.length <= passwordMaxLength) 
+  {
+    database.checkLoginDetails(req.body.username, req.body.password, done);
+  }
+  else {
+    res.login = false;
+    next();
+  }
 
   //callback function
   function done(result) {
   	if(result == true) {
       res.login = true;
-  		console.log("login details for " + req.body.username + " were correct");
+  		console.log(req.body.username + " logged in successfully.");
   	}
   	else {
       res.login = false;
-  		console.log("login details were incorrect");
   	}
   	next();
   }
@@ -83,7 +97,6 @@ function createSession(req, res, next) {
     //callback function
     function done(cookie) {
       res.cookie("session", cookie);
-      console.log("session created for " + req.body.username + ".");
       next();
     }
   }

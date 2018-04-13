@@ -43,7 +43,6 @@ function getUserComments(req, res, next) {
 
   //callback function
   function done(results) {
-    console.log(results);
     res.userComments = results;
     next();
   }
