@@ -1,8 +1,8 @@
 "use strict";
 
-var fs = require("fs");
-var database = require("./database/database.js");
-var mustache = require("mustache");
+const fs = require("fs");
+const database = require("./database/database.js");
+const mustache = require("mustache");
 
 function getSessionUsername(req, res, next) {
   database.getSessionUsername(req.cookies.session, done);

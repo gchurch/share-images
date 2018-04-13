@@ -1,16 +1,16 @@
 "use strict"
 
-var express = require("express");
-var router = express.Router();
-var fs = require("fs");
-var database = require("./../database/database.js");
-var mustache = require("mustache");
-var mw = require("./../middleware");
+const express = require("express");
+const router = express.Router();
+const fs = require("fs");
+const database = require("./../database/database.js");
+const mustache = require("mustache");
+const mw = require("./../middleware");
 
-var multer = require('multer');
-var upload = multer({dest: 'public/images/uploads/'});
+const multer = require('multer');
+const upload = multer({dest: 'public/images/uploads/'});
 
-var imageTitleMaxLength = 30;
+const imageTitleMaxLength = 30;
 
 //load the index page content
 function loadUploadTemplate(req, res, next) {
@@ -18,7 +18,7 @@ function loadUploadTemplate(req, res, next) {
   
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -30,7 +30,7 @@ function loadUploadFailedTemplate(req, res, next) {
 
   //callback function
 	function done(err, content) {
-		if(err) console.log(err);
+		if(err) throw(err);
 		res.pageContent = content;
 		next();
 	}
@@ -42,7 +42,7 @@ function loadUploadSucceededTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -74,7 +74,7 @@ function addImageToDatabase(req, res, next) {
 
     //callback function
     function done() {
-      console.log("New image uploaded.");
+      console.log(res.username + " uploaded an image.");
       res.successfulImageUpload = true;
       next();
     }

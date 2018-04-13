@@ -1,16 +1,16 @@
 "use strict";
 
-var express = require("express");
-var router = express.Router();
-var database = require("./../database/database.js");
+const express = require("express");
+const router = express.Router();
+const database = require("./../database/database.js");
 
 //delete the session associated with this account
 function deleteSession(req, res, next) {
-  console.log("OMG");
   database.deleteSessionByCookie(req.cookies.session, done);
   
   //callback function
   function done() {
+  	console.log(res.username + " logged out.");
     next();
   }
 }

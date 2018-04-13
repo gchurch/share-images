@@ -1,14 +1,14 @@
 "use strict";
 
-var express = require("express");
-var router = express.Router();
-var fs = require("fs");
-var mustache = require("mustache");
-var database = require("./../database/database.js");
-var mw = require("./../middleware.js");
+const express = require("express");
+const router = express.Router();
+const fs = require("fs");
+const mustache = require("mustache");
+const database = require("./../database/database.js");
+const mw = require("./../middleware.js");
 
-var usernameMaxLength = 20;
-var passwordMaxLength = 20;
+const usernameMaxLength = 20;
+const passwordMaxLength = 20;
 
 //load the login page template
 function loadLoginTemplate(req, res, next) {
@@ -80,7 +80,7 @@ function checkLoginDetails(req, res, next) {
   function done(result) {
   	if(result == true) {
       res.login = true;
-  		console.log(req.body.username + " logged in successfully.");
+  		console.log(req.body.username + " logged in.");
   	}
   	else {
       res.login = false;

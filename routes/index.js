@@ -1,11 +1,11 @@
 "use strict";
 
-var express = require("express");
-var router = express.Router();
-var fs = require("fs");
-var database = require("./../database/database.js");
-var mustache = require("mustache");
-var mw = require("./../middleware.js");
+const express = require("express");
+const router = express.Router();
+const fs = require("fs");
+const database = require("./../database/database.js");
+const mustache = require("mustache");
+const mw = require("./../middleware.js");
 
 
 //load the index page content
@@ -14,7 +14,7 @@ function loadIndexTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }

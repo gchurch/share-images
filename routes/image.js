@@ -1,14 +1,14 @@
 "use strict";
 
-var express = require("express");
-var router = express.Router();
-var fs = require("fs");
-var mustache = require("mustache");
-var database = require("./../database/database.js");
-var mw = require("./../middleware.js");
+const express = require("express");
+const router = express.Router();
+const fs = require("fs");
+const mustache = require("mustache");
+const database = require("./../database/database.js");
+const mw = require("./../middleware.js");
 
 //max number of characters for a comment
-var maxCommentLength = 100;
+const maxCommentLength = 100;
 
 
 //retrieve the requested image data from the database
@@ -50,7 +50,7 @@ function loadImagePageTemplate(req, res, next) {
 
   //callback function
   function done(err, content) {
-    if(err) console.log(err);
+    if(err) throw(err);
     res.pageContent = content;
     next();
   }
@@ -78,6 +78,7 @@ function addCommentToDatabase(req, res, next) {
 
     //callback function
     function done() {
+      console.log(res.username + " posted a comment.");
       next();
     }
   }

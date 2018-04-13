@@ -1,30 +1,30 @@
 "use express"
 
 //required modules
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var mustacheExpress = require('mustache-express');
-var middleware = require('./middleware.js');
+const express = require('express');
+const path = require('path');
+const favicon = require('serve-favicon');
+const logger = require('morgan');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const mustacheExpress = require('mustache-express');
+const middleware = require('./middleware.js');
 
 //establish a connection to the mysql database
 require("./database/database.js").connectToDatabase();
 
 //routes
-var index = require('./routes/index');
-var upload = require('./routes/upload');
-var image = require('./routes/image');
-var search = require('./routes/search');
-var login = require('./routes/login');
-var signup = require('./routes/signup');
-var logout = require('./routes/logout');
-var user = require('./routes/user');
+const index = require('./routes/index');
+const upload = require('./routes/upload');
+const image = require('./routes/image');
+const search = require('./routes/search');
+const login = require('./routes/login');
+const signup = require('./routes/signup');
+const logout = require('./routes/logout');
+const user = require('./routes/user');
 
 //create the app
-var app = express();
+const app = express();
 
 //using the mustache template engine
 app.engine('mustache', mustacheExpress());

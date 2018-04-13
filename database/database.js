@@ -1,10 +1,10 @@
 "use strict";
 
-var mysql = require('mysql');
-var fs = require('fs');
-var crypto = require('crypto');
+const mysql = require('mysql');
+const fs = require('fs');
+const crypto = require('crypto');
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   multipleStatements: true,
   host: "localhost",
   user: "root",
