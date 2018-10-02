@@ -8,7 +8,7 @@ const connection = mysql.createConnection({
   multipleStatements: true,
   host: "localhost",
   user: "root",
-  password: "password",
+  //password: "password",
   database: "ShareImages"
 });
 
