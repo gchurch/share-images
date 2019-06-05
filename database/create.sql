@@ -1,4 +1,3 @@
-DROP DATABASE ShareImages;
 CREATE DATABASE ShareImages;
 USE ShareImages;
 
