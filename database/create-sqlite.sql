@@ -12,7 +12,7 @@ DROP TABLE Sessions;
 CREATE TABLE Sessions (
   sessionID INT NOT NULL PRIMARY KEY,
   userID INT NOT NULL,
-  cookie VARCHAR(128),
+  cookie VARCHAR(128) NOT NULL,
   FOREIGN KEY (userID) REFERENCES Users(userID)
 );
 

@@ -3,6 +3,7 @@
 const mysql = require('mysql');
 const fs = require('fs');
 const crypto = require('crypto');
+const sqlite3 = require('sqlite3');
 
 const connection = mysql.createConnection({
   multipleStatements: true,
@@ -11,6 +12,8 @@ const connection = mysql.createConnection({
   password: "password",
   database: "ShareImages"
 });
+
+const db = new sqlite3.Database("database/data.db");
 
 var imageLimit = 6;
 
@@ -70,6 +73,55 @@ function createServerSidePreparedStatements() {
     if(err) throw err;
     console.log("Prepared statements done.");
   }
+}
+
+
+var insertIntoCommentsPs = db.prepare("INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );");
+var insertIntoImagesPs = db.prepare("INSERT INTO Images ( userID, title, path ) VALUES ( ?, ? ,? );");
+var insertIntoUsersPs = db.prepare("INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ?);");
+var insertIntoSessionsPs = db.prepare("INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);");
+var selectLatestImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;");
+var selectAllImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;");
+var checkUsernameExistsPs = db.prepare("SELECT username FROM Users WHERE username = ? LIMIT 1;");
+var selectLoginInfoPs = db.prepare("SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;");
+var deleteSessionByCookiePs = db.prepare("DELETE FROM Sessions WHERE cookie = ?;");
+var selectUserIdFromUsernamePs = db.prepare("SELECT userID FROM Users WHERE username = ? LIMIT 1;");
+var deleteSessionByUserIdPs = db.prepare("DELETE FROM Sessions WHERE userID = ?;");
+var selectUserIdByCookiePs = db.prepare("SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;");
+var selectUsernameByUserIdPs = db.prepare("SELECT username FROM Users WHERE userID = ? LIMIT 1;");
+var selectImagesByUserPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;");
+var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.title, Images.path, strftime(\"%H:%i:%s %d/%m/%y\", Images.uploadDateTime) as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
+var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", Comments.postDateTime) as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
+var selectCommentsByUsernamePs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", postDateTime) as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
+var selectUserDataPs = db.prepare("SELECT strftime(\"%H:%i:%s %d/%m/%y\", signupDateTime) as signupDateTime FROM Users WHERE username = ?;");
+
+
+function insertIntoComments(userId, imageId, text, callback) {
+  insertIntoCommentsPs.all(userId, imageId, text, function(err) {
+    if (err) throw err;
+    callback();
+  });
+}
+
+function insertIntoImages(userId, title, path, callback) {
+  insertIntoImagesPs.all(userId, title, path, function(err) {
+    if (err) throw err;
+    callback();
+  });
+}
+
+function insertIntoUsers(username, salt, iterations, login_key, callback) {
+  insertIntoUsersPs.all(username, salt, iterations, login_key, function(err) {
+    if (err) throw err;
+    callback();
+  });
+}
+
+function insertIntoSessions(cookie, userId, callback) {
+  insertIntoSessionsPs.all(cookie, userId, function(err) {
+    if (err) throw err;
+    callback();
+  });
 }
 
 /*************IMAGE DATA FUNCTIONS************/
