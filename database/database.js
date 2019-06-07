@@ -85,15 +85,15 @@ var selectAllImagesPs = db.prepare("SELECT Images.imageID, Users.username, Image
 var checkUsernameExistsPs = db.prepare("SELECT username FROM Users WHERE username = ? LIMIT 1;");
 var selectLoginInfoPs = db.prepare("SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;");
 var deleteSessionByCookiePs = db.prepare("DELETE FROM Sessions WHERE cookie = ?;");
-var selectUserIdFromUsernamePs = db.prepare("SELECT userID FROM Users WHERE username = ? LIMIT 1;");
+var selectUserIdByUsernamePs = db.prepare("SELECT userID FROM Users WHERE username = ? LIMIT 1;");
 var deleteSessionByUserIdPs = db.prepare("DELETE FROM Sessions WHERE userID = ?;");
 var selectUserIdByCookiePs = db.prepare("SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;");
 var selectUsernameByUserIdPs = db.prepare("SELECT username FROM Users WHERE userID = ? LIMIT 1;");
-var selectImagesByUserPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;");
+var selectImagesByUsernamePs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;");
 var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.title, Images.path, strftime(\"%H:%i:%s %d/%m/%y\", Images.uploadDateTime) as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
 var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", Comments.postDateTime) as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
 var selectCommentsByUsernamePs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", postDateTime) as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
-var selectUserDataPs = db.prepare("SELECT strftime(\"%H:%i:%s %d/%m/%y\", signupDateTime) as signupDateTime FROM Users WHERE username = ?;");
+var selectUserDataByUsernamePs = db.prepare("SELECT strftime(\"%H:%i:%s %d/%m/%y\", signupDateTime) as signupDateTime FROM Users WHERE username = ?;");
 
 
 function insertIntoComments(userId, imageId, text, callback) {
@@ -121,6 +121,109 @@ function insertIntoSessions(cookie, userId, callback) {
   insertIntoSessionsPs.all(cookie, userId, function(err) {
     if (err) throw err;
     callback();
+  });
+}
+
+function selectLatestImages(callback) {
+  selectLatestImagesPs.all(imageLimit, function(err, result) {
+    if (err) throw err;
+    callback(result[1]);
+  });
+}
+
+function selectAllImages(callback) {
+  selectAllImagesPs.all(function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function checkUsernameExists(username, callback) {
+  checkUsernameExistsPs.all(username, function(err, result, fields) {
+    if (err) throw err;
+    if(result[1][0]) {
+      callback(true);
+    }
+    else {
+      callback(false);
+    }
+  });
+}
+
+function selectLoginInfo(username, callback) {
+  selectLoginInfoPs.all(username, function(err, result) {
+    if (err) throw err;
+    callback(result)
+  });
+}
+
+function deleteSessionByCookie(cookie, callback) {
+  deleteSessionByCookiePs.all(cookie, function(err) {
+    if (err) throw err;
+    callback();
+  });
+}
+
+function selectUserIdByUsername(username, callback) {
+  selectUserIdByUsernamePs.all(username, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function deleteSessionByUserId(userId, callback) {
+  deleteSessionBuyUserIdPs.all(userId, function(err) {
+    if (err) throw err;
+    callback();
+  });
+}
+
+function selectUserIdByCookie(cookie, callback) {
+  selectUserIdByCookiePs.all(cookie, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function selectUsernameByUserId(userId, callback) {
+  selectUsernameByUserIdPs.all(userId, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function selectImagesByUsername(username, callback) {
+  selectImagesByUsernamePs.all(username, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function selectImageByImageId(imageId, callback) {
+  selectImageByImageIdPs.all(imageId, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function selectCommentsByImageId(imageId, callback) {
+  selectCommentsByImageIdPs.all(imageId, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function selectCommentsByUsername(username, callback) {
+  selectCommentsByUsernamePs.all(username, function(err, result) {
+    if (err) throw err;
+    callback(result);
+  });
+}
+
+function selectUserDatByUsername(username, callback) {
+  selectUserDataByUsernamePs.all(username, function(err, result) {
+    if (err) throw err;
+    callback(result);
   });
 }
 
