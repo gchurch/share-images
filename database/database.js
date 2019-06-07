@@ -26,7 +26,7 @@ var deleteSessionByUserIdPs = db.prepare("DELETE FROM Sessions WHERE userID = ?;
 var selectUserIdByCookiePs = db.prepare("SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;");
 var selectUsernameByUserIdPs = db.prepare("SELECT username FROM Users WHERE userID = ? LIMIT 1;");
 var selectImagesByUsernamePs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;");
-var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.title, Images.path, uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
+var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.imageID, Images.title, Images.path, uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
 var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
 var selectCommentsByUsernamePs = db.prepare("SELECT Comments.imageID, Comments.text, postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
 var selectUserDataByUsernamePs = db.prepare("SELECT signupDateTime FROM Users WHERE username = ?;");
