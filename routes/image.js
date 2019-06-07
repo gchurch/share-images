@@ -18,8 +18,8 @@ function getImageData(req, res, next) {
 
   //callback function
   function done(result) {
-    if(result[0]) {
-      res.imageData = result[0];
+    if(result) {
+      res.imageData = result;
     }
     next();
   }

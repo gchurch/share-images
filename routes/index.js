@@ -21,8 +21,8 @@ function loadIndexTemplate(req, res, next) {
 }
 
 //get all of the images in the database
-function getLatestImages(req, res, next) {
-  database.getLatestImages(done);
+function getImages(req, res, next) {
+  database.getAllImages(done);
 
   //callback function
   function done(result) {
@@ -40,6 +40,6 @@ function renderIndexTemplate(req, res, next) {
 // GET home page.
 var stylesheets = [{href: "images.css"}];
 var scripts = [];
-router.get('/', loadIndexTemplate, getLatestImages, renderIndexTemplate, mw.renderPage(stylesheets,scripts));
+router.get('/', loadIndexTemplate, getImages, renderIndexTemplate, mw.renderPage(stylesheets,scripts));
 
 module.exports = router;

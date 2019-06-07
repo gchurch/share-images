@@ -154,7 +154,7 @@ function selectCommentsByUsername(username, callback) {
   });
 }
 
-function selectUserDatByUsername(username, callback) {
+function selectUserDataByUsername(username, callback) {
   selectUserDataByUsernamePs.all(username, function(err, result) {
     if (err) throw err;
     callback(result);
@@ -165,9 +165,7 @@ function selectUserDatByUsername(username, callback) {
 
 //Get the latest images stored in the database
 function getLatestImages(callback) {
-  selectLatestImages(function(result) {
-    callback(result[1]);
-  });
+  selectLatestImages(callback);
 }
 module.exports.getLatestImages = getLatestImages;
 
@@ -186,12 +184,13 @@ function addImage(username, title, path, callback) {
 module.exports.addImage = addImage;
 
 //Get data of an image by supplying an id
-function getImageById(imageId, callback) {
+function getImageDataById(imageId, callback) {
   selectImageByImageId(imageId, function(result) {
-    callback(result[1]);
+    console.log(result);
+    callback(result[0]);
   });
 }
-module.exports.getImageById = getImageById;
+module.exports.getImageDataById = getImageDataById;
 
 
 
@@ -200,14 +199,15 @@ module.exports.getImageById = getImageById;
 //Get the comments for an image
 function getCommentsByImageID(imageId, callback) {
   selectCommentsByImageId(imageId, function(result) {
-    callback(result[1]);
+    callback(result);
   });
 }
 module.exports.getCommentsByImageID = getCommentsByImageID;
 
 //Add a comment to an image
-function addCommentToImage(username, imageID, text, callback) {
-  selectUserIdByUsername(username, function(userId) {
+function addCommentToImage(username, imageId, text, callback) {
+  selectUserIdByUsername(username, function(result) {
+    var userId = result[0].userID;
     insertIntoComments(userId, imageId, text, callback);
   });
 }
@@ -216,7 +216,7 @@ module.exports.addCommentToImage = addCommentToImage;
 //Get comments placed by a user
 function getUserComments(username, callback) {
   selectCommentsByUsername(username, function(result) {
-    callback(result[1]);
+    callback(result);
   });
 }
 module.exports.getUserComments = getUserComments;
@@ -375,7 +375,6 @@ module.exports.getSessionUsername = getSessionUsername;
 /**********USER DATA******************/
 
 
-
 function getUserData(username, callback) {
   selectUserDataByUsername(username, function(result) {
     if(result[0]) {
@@ -387,6 +386,7 @@ function getUserData(username, callback) {
   });
 }
 module.exports.getUserData = getUserData;
+
 
 function getUserImages(username, callback) {
   selectImagesByUsername(username, function(result) {
