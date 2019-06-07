@@ -59,7 +59,7 @@ function renderPageTemplate(req, res, next) {
   next();
 }
 
-var stylesheets = [{href: "images.css"},{href: "comments.css"}];
+var stylesheets = [{href: "user.css"}, {href: "images.css"}];
 var scripts = [];
 router.get("/:username", loadPageTemplate, getUserData, getUserImages, getUserComments, renderPageTemplate, mw.renderPage(stylesheets,scripts));
 

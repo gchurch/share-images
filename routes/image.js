@@ -65,7 +65,7 @@ function renderImagePageTemplate(req, res, next) {
 }
 
 //GET request for a specfic image id
-var stylesheets = [{href: "image.css"},{href: "comments.css"}];
+var stylesheets = [{href: "image.css"}];
 var scripts = [];
 router.get('/:id', getImageData, getImageComments, loadImagePageTemplate, renderImagePageTemplate, mw.renderPage(stylesheets, scripts));
 

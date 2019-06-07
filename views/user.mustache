@@ -1,7 +1,7 @@
-<h1>Username: {{username}}</h1>
-<h2>User Info:</h2>
+<h1>{{username}}</h1>
+<h3>User Info:</h3>
 <p>Joined: {{signupDateTime}}</p>
-<h2>Uploaded Images:</h2>
+<h3>Uploaded Images:</h3>
 <div id='images'>
   {{#images}}<a href='/image/{{imageID}}'>
     <div>
@@ -11,19 +11,19 @@
     </div>
   </a>{{/images}}
 </div>
-<h2>Comments Posted:</h2>
+<h3>Comments Posted:</h3>
 <div>
   <table>
     <tr>
+      <th>Image</th>
       <th>Comment</th>
       <th>Time Posted</th>
-      <th>User</th>
     </tr>
     {{#comments}}
     <tr>
+      <td><a href='/image/{{imageID}}'>{{imageID}}</a></td>
       <td>{{text}}</td>
       <td>{{postDateTime}}</td>
-      <td><a href="/user/{{username}}">{{username}}</a></td>
     </tr>
     {{/comments}}
   </table>
