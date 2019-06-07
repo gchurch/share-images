@@ -21,7 +21,6 @@ header, footer, h1, h2, h3, p, div {
 header #home {
   font-size: 3em;
   font-weight: bold;
-  font-family: garamond;
 }
 
 header #home:link, header #home:visited, header #home:active {

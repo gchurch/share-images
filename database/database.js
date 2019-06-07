@@ -26,10 +26,10 @@ var deleteSessionByUserIdPs = db.prepare("DELETE FROM Sessions WHERE userID = ?;
 var selectUserIdByCookiePs = db.prepare("SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;");
 var selectUsernameByUserIdPs = db.prepare("SELECT username FROM Users WHERE userID = ? LIMIT 1;");
 var selectImagesByUsernamePs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;");
-var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.title, Images.path, strftime(\"%H:%i:%s %d/%m/%y\", Images.uploadDateTime) as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
-var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", Comments.postDateTime) as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
-var selectCommentsByUsernamePs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", postDateTime) as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
-var selectUserDataByUsernamePs = db.prepare("SELECT strftime(\"%H:%i:%s %d/%m/%y\", signupDateTime) as signupDateTime FROM Users WHERE username = ?;");
+var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.title, Images.path, uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
+var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
+var selectCommentsByUsernamePs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
+var selectUserDataByUsernamePs = db.prepare("SELECT signupDateTime FROM Users WHERE username = ?;");
 
 
 /***************FUNCTIONS TO EXECUTE PREPARED STATEMENTS********************/
@@ -186,7 +186,6 @@ module.exports.addImage = addImage;
 //Get data of an image by supplying an id
 function getImageDataById(imageId, callback) {
   selectImageByImageId(imageId, function(result) {
-    console.log(result);
     callback(result[0]);
   });
 }
