@@ -54,7 +54,7 @@ function createServerSidePreparedStatements() {
   "PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);';" + 
   "PREPARE selectLatestImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;';" +
   "PREPARE selectAllImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;';" +
-  "PREPARE checkUsernameExists FROM 'SELECT username FROM Users WHERE username = ? LIMIT 1;';" +
+  "PREPARE selectUsername FROM 'SELECT username FROM Users WHERE username = ? LIMIT 1;';" +
   "PREPARE selectLoginInfo FROM 'SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;';" +
   "PREPARE deleteSessionByCookie FROM 'DELETE FROM Sessions WHERE cookie = ? LIMIT 1;';" + 
   "PREPARE selectUserIDFromUsername FROM 'SELECT userID FROM Users WHERE username = ? LIMIT 1;';" +
@@ -82,8 +82,8 @@ var insertIntoUsersPs = db.prepare("INSERT INTO Users ( username, salt, iteratio
 var insertIntoSessionsPs = db.prepare("INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);");
 var selectLatestImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;");
 var selectAllImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;");
-var checkUsernameExistsPs = db.prepare("SELECT username FROM Users WHERE username = ? LIMIT 1;");
-var selectLoginInfoPs = db.prepare("SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;");
+var selectUsernamePs = db.prepare("SELECT username FROM Users WHERE username = ? LIMIT 1;");
+var selectLoginInfoByUsernamePs = db.prepare("SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;");
 var deleteSessionByCookiePs = db.prepare("DELETE FROM Sessions WHERE cookie = ?;");
 var selectUserIdByUsernamePs = db.prepare("SELECT userID FROM Users WHERE username = ? LIMIT 1;");
 var deleteSessionByUserIdPs = db.prepare("DELETE FROM Sessions WHERE userID = ?;");
@@ -95,6 +95,8 @@ var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imag
 var selectCommentsByUsernamePs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, strftime(\"%H:%i:%s %d/%m/%y\", postDateTime) as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
 var selectUserDataByUsernamePs = db.prepare("SELECT strftime(\"%H:%i:%s %d/%m/%y\", signupDateTime) as signupDateTime FROM Users WHERE username = ?;");
 
+
+/***************FUNCTIONS TO EXECUTE PREPARED STATEMENTS********************/
 
 function insertIntoComments(userId, imageId, text, callback) {
   insertIntoCommentsPs.all(userId, imageId, text, function(err) {
@@ -127,7 +129,7 @@ function insertIntoSessions(cookie, userId, callback) {
 function selectLatestImages(callback) {
   selectLatestImagesPs.all(imageLimit, function(err, result) {
     if (err) throw err;
-    callback(result[1]);
+    callback(result);
   });
 }
 
@@ -138,20 +140,16 @@ function selectAllImages(callback) {
   });
 }
 
-function checkUsernameExists(username, callback) {
-  checkUsernameExistsPs.all(username, function(err, result, fields) {
+function selectUsername(username, callback) {
+  selectUsernamePs.all(username, function(err, result) {
+    console.log(result);
     if (err) throw err;
-    if(result[1][0]) {
-      callback(true);
-    }
-    else {
-      callback(false);
-    }
+    callback(result);
   });
 }
 
-function selectLoginInfo(username, callback) {
-  selectLoginInfoPs.all(username, function(err, result) {
+function selectLoginInfoByUsername(username, callback) {
+  selectLoginInfoByUsernamePs.all(username, function(err, result) {
     if (err) throw err;
     callback(result)
   });
@@ -229,133 +227,61 @@ function selectUserDatByUsername(username, callback) {
 
 /*************IMAGE DATA FUNCTIONS************/
 
-
-
+//Get the latest images stored in the database
 function getLatestImages(callback) {
-  var query = 
-    "SET @imageLimit = ?;" + 
-    "EXECUTE selectLatestImages USING @imageLimit;";
-  connection.query(query, [imageLimit], done);
-
-  //callback function
-  function done(err, result) {
-    if (err) throw err;
+  selectLatestImages(function(result) {
     callback(result[1]);
-  };
+  });
 }
 module.exports.getLatestImages = getLatestImages;
 
-//callback function recieves all of the image data in the database
+//Get all images stored in the database
 function getAllImages(callback) {
-  var query = 
-    "EXECUTE selectAllImages;";
-  connection.query(query, done);
-
-  //callback function
-  function done(err, result) {
-    if (err) throw err;
-    callback(result);
-  }
+  selectAllImages(callback);
 }
 module.exports.getAllImages = getAllImages;
 
-function insertImageEntry(userID, title, path, callback) {
-  var query = 
-    "SET @userID = ?;" + 
-    "SET @title = ?;" +
-    "SET @path = ?;" + 
-    "EXECUTE insertIntoImages USING @userID, @title, @path;";
-  connection.query(query, [userID, title, path], done);
-
-  //callback function
-  function done(err) {
-    if (err) throw err;
-    callback();
-  }
-}
-
-//add Entry
+//Add an image to the database
 function addImage(username, title, path, callback) {
-  getUserIDFromUsername(username, done);
-
-  //callback function
-  function done(userID) {
-    insertImageEntry(userID, title, path, callback);
-  }
+  getUserIDFromUsername(username, function(userId) {
+    insertIntoImages(userId, title, path, callback);
+  });
 }
 module.exports.addImage = addImage;
 
-//get individual image data
-function getImageDataById(imageID, callback) {
-  var query = 
-    "SET @imageID = ?;" +
-    "EXECUTE selectImageByImageID USING @imageID;";
-  connection.query(query, [imageID], done);
-
-  //callback function
-  function done(err, result) {
-    if (err) throw err;
+//Get data of an image by supplying an id
+function getImageById(imageId, callback) {
+  selectImageByImageId(imageId, function(result) {
     callback(result[1]);
-  };
+  });
 }
-module.exports.getImageDataById = getImageDataById;
+module.exports.getImageById = getImageById;
 
 
 
 /*************COMMENTS*******************/
 
-
-
-function getCommentsByImageID(imageID, callback) {
-  var query = 
-    "SET @imageID = ?;" +
-    "EXECUTE selectCommentsByImageID USING @imageID;"
-  connection.query(query, [imageID], done);
-
-  //callback function
-  function done(err, result) {
-    if (err) throw err;
+//Get the comments for an image
+function getCommentsByImageID(imageId, callback) {
+  selectCommentsByImageId(imageId, function(result) {
     callback(result[1]);
-  };
+  });
 }
 module.exports.getCommentsByImageID = getCommentsByImageID;
 
-function insertCommentEntry(userID, imageID, text, callback) {
-  var query = 
-    "SET @userID = ?;" + 
-    "SET @imageID = ?;" + 
-    "SET @text = ?;" + 
-    "EXECUTE insertIntoComments USING @userID, @imageID, @text;";
-  connection.query(query, [userID, imageID, text], done);
-
-  //callback function
-  function done(err) {
-    if(err) throw err;
-    callback();
-  }
-}
-
+//Add a comment to an image
 function addCommentToImage(username, imageID, text, callback) {
-   getUserIDFromUsername(username, done);
-
-   //callback function
-   function done(userID) {
-     insertCommentEntry(userID, imageID, text, callback);
-   }
+  selectUserIdByUsername(username, function(userId) {
+    insertIntoComments(userId, imageId, text, callback);
+  });
 }
 module.exports.addCommentToImage = addCommentToImage;
 
+//Get comments placed by a user
 function getUserComments(username, callback) {
-  var query = 
-    "SET @username = ?;" +
-    "EXECUTE selectCommentsByUsername USING @username;"
-  connection.query(query, [username], done);
-
-  //callback function
-  function done(err, results) {
-    if(err) throw err;
-    callback(results[1]);
-  }
+  selectCommentsByUsername(username, function(result) {
+    callback(result[1]);
+  });
 }
 module.exports.getUserComments = getUserComments;
 
@@ -377,43 +303,26 @@ function saltHashAndStretch(password, salt, iterations) {
 
 /*************SIGN UP FUNCTIONS*************/
 
-
-
+//Create a new account
 function createAccount(username, password, callback) {
   var salt = randomData();
   var iterations = 100000;
   var login_key = saltHashAndStretch(password, salt, iterations);
-  var query = 
-    "SET @username = ?;" + 
-    "SET @salt = ?;" + 
-    "SET @iterations = ?;" + 
-    "SET @login_key = ?;" + 
-    "EXECUTE insertIntoUsers USING @username, @salt, @iterations, @login_key;";
-  connection.query(query, [username, salt, iterations, login_key], done);
 
-  //callback function
-  function done(err) {
-    if (err) throw err;
-    callback();
-  };
+  insertIntoUsers(username, salt, iterations, login_key, callback);
 }
 module.exports.createAccount = createAccount;
 
+//Check whether a given username already exists
 function checkUsernameAlreadyExists(username, callback) {
-  var query = 
-    "SET @username = ?;" + 
-    "EXECUTE checkUsernameExists USING @username;";
-  connection.query(query, [username], done);
-
-  //callback function
-  function done(err, result, fields) {
-    if(err) throw err;
-    if(result[1][0]) {
+  selectUsername(username, function(result) {
+    if(result[0]) {
       callback(true);
-    } else {
+    }
+    else {
       callback(false);
     }
-  };
+  });
 }
 module.exports.checkUsernameAlreadyExists = checkUsernameAlreadyExists;
 
@@ -421,20 +330,12 @@ module.exports.checkUsernameAlreadyExists = checkUsernameAlreadyExists;
 
 /**************LOGIN FUNCTIONS*****************/
 
-
-
+//Check that the supplied login credentials are correct
 function checkLoginDetails(username, password, callback) {
-  var query = 
-    "SET @username = ?;" +
-    "EXECUTE selectLoginInfo USING @username;";
-  connection.query(query, [username], done);
-
-  //callback function
-  function done(err, result, fields) {
-    if(err) throw err;
-    //check the password matches
-    if(result[1][0]) {
-      if(saltHashAndStretch(password, result[1][0].salt, result[1][0].iterations) == result[1][0].login_key) {
+  selectLoginInfoByUsername(username, function(result) {
+    console.log(result);
+    if(result[0]) {
+      if(saltHashAndStretch(password, result[0].salt, result[0].iterations) == result[0].login_key) {
         callback(true);
       }
       else {
@@ -444,7 +345,7 @@ function checkLoginDetails(username, password, callback) {
     else {
       callback(false);
     }
-  }
+  });
 }
 module.exports.checkLoginDetails = checkLoginDetails;
 
