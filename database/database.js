@@ -142,7 +142,6 @@ function selectAllImages(callback) {
 
 function selectUsername(username, callback) {
   selectUsernamePs.all(username, function(err, result) {
-    console.log(result);
     if (err) throw err;
     callback(result);
   });
@@ -170,7 +169,7 @@ function selectUserIdByUsername(username, callback) {
 }
 
 function deleteSessionByUserId(userId, callback) {
-  deleteSessionBuyUserIdPs.all(userId, function(err) {
+  deleteSessionByUserIdPs.all(userId, function(err) {
     if (err) throw err;
     callback();
   });
@@ -333,7 +332,6 @@ module.exports.checkUsernameAlreadyExists = checkUsernameAlreadyExists;
 //Check that the supplied login credentials are correct
 function checkLoginDetails(username, password, callback) {
   selectLoginInfoByUsername(username, function(result) {
-    console.log(result);
     if(result[0]) {
       if(saltHashAndStretch(password, result[0].salt, result[0].iterations) == result[0].login_key) {
         callback(true);
@@ -351,61 +349,19 @@ module.exports.checkLoginDetails = checkLoginDetails;
 
 
 function deleteSessionByCookie(cookie, callback) {
-  var query = 
-    "SET @cookie = ?;" + 
-    "EXECUTE deleteSessionByCookie USING @cookie;";
-  connection.query(query, [cookie], done);
-
-  //callback function
-  function done() {
-    callback();
-  }
+  deleteSessionByCookie(cookie, callback);
 }
 module.exports.deleteSessionByCookie = deleteSessionByCookie;
 
 function getUserIDFromUsername(username, callback) {
-  var query = 
-    "SET @username = ?;" +
-    "EXECUTE selectUserIDFromUsername USING @username;";
-  connection.query(query, [username], done);
-
-  //callback function
-  function done(err, result) {
-    if(err) throw err;
-    if(result[1][0]) {
-      callback(result[1][0].userID);
+  selectUserIdByUsername(username, function(result) {
+    if(result[0]) {
+      callback(result[0].userID);
     }
     else {
       callback(null);
     }
-  }
-}
-
-function deleteSessionByUserID(userID, callback) {
-  var query = 
-    "SET @userID = ?;" +
-    "EXECUTE deleteSessionByUserID USING @userID;";
-  connection.query(query, [userID], done);
-
-  //callback function
-  function done(err, result) {
-    if(err) throw err;
-    callback(result);
-  }
-}
-
-function insertSessionEntry(cookie, userID, callback) {
-  var query = 
-    "SET @cookie = ?;" + 
-    "SET @userID = ?;" + 
-    "EXECUTE insertIntoSessions USING @cookie, @userID;";
-  connection.query(query, [cookie, userID], done);
-
-  //callback function
-  function done(err, result) {
-    if(err) throw err;
-    callback();
-  }
+  });
 }
 
 function createSession(username, callback) {
@@ -415,7 +371,7 @@ function createSession(username, callback) {
 
   //delete the current session
   function step1(userID) {
-    deleteSessionByUserID(userID, next);
+    deleteSessionByUserId(userID, next);
     //call next function
     function next() {
       step2(userID);
@@ -424,7 +380,7 @@ function createSession(username, callback) {
 
   //add new entry to the table for the current session
   function step2(userID) {
-    insertSessionEntry(cookie, userID, done);
+    insertIntoSessions(cookie, userID, done);
     //call next function
     function next() {
       done();
