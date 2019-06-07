@@ -10,9 +10,6 @@ const bodyParser = require('body-parser');
 const mustacheExpress = require('mustache-express');
 const middleware = require('./middleware.js');
 
-//establish a connection to the mysql database
-require("./database/database.js").connectToDatabase();
-
 //routes
 const index = require('./routes/index');
 const upload = require('./routes/upload');

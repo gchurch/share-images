@@ -1,79 +1,15 @@
 "use strict";
 
-const mysql = require('mysql');
 const fs = require('fs');
 const crypto = require('crypto');
 const sqlite3 = require('sqlite3');
-
-const connection = mysql.createConnection({
-  multipleStatements: true,
-  host: "localhost",
-  user: "root",
-  password: "password",
-  database: "ShareImages"
-});
 
 const db = new sqlite3.Database("database/data.db");
 
 var imageLimit = 6;
 
 
-
-/***********DATABASE CONNECTION**************/
-
-
-
-//connect the server to the mysql database
-function connectToDatabase() {
-  connection.connect(done);
-
-  function done(err) {
-    if (err) {
-      console.log('error connecting to database: ' + err.stack);
-    }
-    else {
-      console.log('connected to database');
-      //create all the prepared statements, these will be used for all of our queries
-      createServerSidePreparedStatements();
-    }
-  };
-}
-module.exports.connectToDatabase = connectToDatabase;
-
-
-
 /*************PREPARED STATEMENTS*************/
-
-
-
-function createServerSidePreparedStatements() {
-  var query = 
-  "PREPARE insertIntoComments FROM 'INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );';" +
-  "PREPARE insertIntoImages FROM 'INSERT INTO Images ( userID, title, path ) VALUES ( ?, ? ,? );';" +
-  "PREPARE insertIntoUsers FROM 'INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ?);';" + 
-  "PREPARE insertIntoSessions FROM 'INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);';" + 
-  "PREPARE selectLatestImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;';" +
-  "PREPARE selectAllImages FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;';" +
-  "PREPARE selectUsername FROM 'SELECT username FROM Users WHERE username = ? LIMIT 1;';" +
-  "PREPARE selectLoginInfo FROM 'SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;';" +
-  "PREPARE deleteSessionByCookie FROM 'DELETE FROM Sessions WHERE cookie = ? LIMIT 1;';" + 
-  "PREPARE selectUserIDFromUsername FROM 'SELECT userID FROM Users WHERE username = ? LIMIT 1;';" +
-  "PREPARE deleteSessionByUserID FROM 'DELETE FROM Sessions WHERE userID = ? LIMIT 1;';" +
-  "PREPARE selectUserIDByCookie FROM 'SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;';" +
-  "PREPARE selectUsernameByUserID FROM 'SELECT username FROM Users WHERE userID = ? LIMIT 1;';" +
-  "PREPARE selectImagesByUser FROM 'SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;';" +
-  "PREPARE selectImageByImageID FROM 'SELECT Users.username, Images.title, Images.path, DATE_FORMAT(Images.uploadDateTime, \"%H:%i:%s %d/%m/%y\") as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;';" +
-  "PREPARE selectCommentsByImageID FROM 'SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(Comments.postDateTime, \"%H:%i:%s %d/%m/%y\") as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;';" +
-  "PREPARE selectCommentsByUsername FROM 'SELECT Users.username, Comments.imageID, Comments.text, DATE_FORMAT(postDateTime, \"%H:%i:%s %d/%m/%y\") as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;';" +
-  "PREPARE selectUserData FROM 'SELECT DATE_FORMAT(signupDateTime, \"%H:%i:%s %d/%m/%y\") as signupDateTime FROM Users WHERE username = ?;';";
-  connection.query(query, done);
-
-  //callback function
-  function done(err) {
-    if(err) throw err;
-    console.log("Prepared statements done.");
-  }
-}
 
 
 var insertIntoCommentsPs = db.prepare("INSERT INTO Comments ( userID, imageID, text) VALUES ( ?, ?, ? );");
@@ -160,6 +96,7 @@ function deleteSessionByCookie(cookie, callback) {
     callback();
   });
 }
+module.exports.deleteSessionByCookie = deleteSessionByCookie;
 
 function selectUserIdByUsername(username, callback) {
   selectUserIdByUsernamePs.all(username, function(err, result) {
@@ -348,11 +285,6 @@ function checkLoginDetails(username, password, callback) {
 module.exports.checkLoginDetails = checkLoginDetails;
 
 
-function deleteSessionByCookie(cookie, callback) {
-  deleteSessionByCookie(cookie, callback);
-}
-module.exports.deleteSessionByCookie = deleteSessionByCookie;
-
 function getUserIDFromUsername(username, callback) {
   selectUserIdByUsername(username, function(result) {
     if(result[0]) {
@@ -395,34 +327,20 @@ function createSession(username, callback) {
 module.exports.createSession = createSession;
 
 function getUserIDFromCookie(cookie, callback) {
-  var query = 
-    "SET @cookie = ?;" +
-    "EXECUTE selectUserIDByCookie USING @cookie;";
-  connection.query(query, [cookie], done);
-
-  //callback function
-  function done(err, result) {
-    if(err) throw err;
-    if(result[1][0]) {
-      callback(result[1][0].userID);
+  selectUserIdByCookie(cookie, function(result) {
+    if(result[0]) {
+      callback(result[0].userID);
     }
     else {
       callback(null);
     }
-  }
+  });
 }
 
 function getUsernameFromUserID(userID, callback) {
-  var query = 
-    "SET @userID = ?;" +
-    "EXECUTE selectUsernameByUserID USING @userID;";
-  connection.query(query, [userID], done);
-
-  //callback function
-  function done(err, result) {
-    if(err) throw err;
-    callback(result[1][0].username);
-  }
+  selectUsernameByUserId(userID, function(result) {
+    callback(result[0].username);
+  });
 }
 
 function getSessionUsername(cookie, callback) {
@@ -459,34 +377,20 @@ module.exports.getSessionUsername = getSessionUsername;
 
 
 function getUserData(username, callback) {
-  var query = 
-    "SET @username = ?;" +
-    "EXECUTE selectUserData USING @username;"
-  connection.query(query, [username], done);
-
-  //callback function
-  function done(err, results) {
-    if(err) throw err;
-    if(results[1][0]) {
-      callback(results[1][0]);
+  selectUserDataByUsername(username, function(result) {
+    if(result[0]) {
+      callback(result[0]);
     }
     else {
       callback(null);
     }
-  }
+  });
 }
 module.exports.getUserData = getUserData;
 
 function getUserImages(username, callback) {
-  var query = 
-    "SET @username = ?;" +
-    "EXECUTE selectImagesByUser USING @username;";
-  connection.query(query, [username], done);
-
-  //callback function
-  function done(err, results) {
-    if(err) throw err;
-    callback(results[1]);
-  }
+  selectImagesByUsername(username, function(result) {
+    callback(result);
+  });
 }
 module.exports.getUserImages = getUserImages;
