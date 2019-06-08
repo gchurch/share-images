@@ -17,7 +17,7 @@ var insertIntoImagesPs = db.prepare("INSERT INTO Images ( userID, title, path ) 
 var insertIntoUsersPs = db.prepare("INSERT INTO Users ( username, salt, iterations, login_key ) VALUES ( ?, ?, ?, ?);");
 var insertIntoSessionsPs = db.prepare("INSERT INTO Sessions ( cookie, userID ) VALUES ( ?, ?);");
 var selectLatestImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.imageID DESC LIMIT ?;");
-var selectAllImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.title;");
+var selectAllImagesPs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID ORDER BY Images.uploadDateTime DESC;");
 var selectUsernamePs = db.prepare("SELECT username FROM Users WHERE username = ? LIMIT 1;");
 var selectLoginInfoByUsernamePs = db.prepare("SELECT salt, iterations, login_key FROM Users WHERE username = ? LIMIT 1;");
 var deleteSessionByCookiePs = db.prepare("DELETE FROM Sessions WHERE cookie = ?;");
@@ -26,10 +26,10 @@ var deleteSessionByUserIdPs = db.prepare("DELETE FROM Sessions WHERE userID = ?;
 var selectUserIdByCookiePs = db.prepare("SELECT userID FROM Sessions WHERE cookie = ? LIMIT 1;");
 var selectUsernameByUserIdPs = db.prepare("SELECT username FROM Users WHERE userID = ? LIMIT 1;");
 var selectImagesByUsernamePs = db.prepare("SELECT Images.imageID, Users.username, Images.title, Images.path FROM Users JOIN Images ON Users.userID = Images.userID WHERE Users.username = ?;");
-var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.imageID, Images.title, Images.path, uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
-var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
-var selectCommentsByUsernamePs = db.prepare("SELECT Comments.imageID, Comments.text, postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
-var selectUserDataByUsernamePs = db.prepare("SELECT signupDateTime FROM Users WHERE username = ?;");
+var selectImageByImageIdPs = db.prepare("SELECT Users.username, Images.imageID, Images.title, Images.path, datetime(uploadDateTime, 'localtime') as uploadDateTime FROM Users JOIN Images ON Users.userID = Images.userID WHERE Images.imageID = ?;");
+var selectCommentsByImageIdPs = db.prepare("SELECT Users.username, Comments.imageID, Comments.text, datetime(postDateTime, 'localtime') as postDateTime FROM Users JOIN Comments ON Users.userID = Comments.userID WHERE Comments.imageID = ? ORDER BY Comments.commentID;");
+var selectCommentsByUsernamePs = db.prepare("SELECT Comments.imageID, Comments.text, datetime(postDateTime, 'localtime') as postDateTime From Users JOIN Comments ON Users.userID = Comments.userID WHERE Users.username = ?;");
+var selectUserDataByUsernamePs = db.prepare("SELECT datetime(signupDateTime, 'localtime') as signupDateTime FROM Users WHERE username = ?;");
 
 
 /***************FUNCTIONS TO EXECUTE PREPARED STATEMENTS********************/
