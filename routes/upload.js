@@ -55,7 +55,7 @@ function renderUploadTemplate(req, res, next) {
 
 //GET requests for upload pages
 var stylesheets = [{href: "upload.css"}];
-var scripts = [];
+var scripts = [{src: "upload.js"}];
 router.get('/', loadUploadTemplate, renderUploadTemplate, mw.renderPage(stylesheets, scripts));
 router.get('/failed', loadUploadFailedTemplate, mw.renderPage(stylesheets, scripts));
 router.get('/succeeded', loadUploadSucceededTemplate, mw.renderPage(stylesheets, scripts));
