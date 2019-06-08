@@ -18,7 +18,7 @@ module.exports.getSessionUsername = getSessionUsername;
 function renderPage(stylesheets, scripts) {
   return function(req, res, next) {
     if(res.username) {
-      var account1String = "<p>Logged in as <a href='/user/" + res.username +"'>" + res.username + "</a></p>";
+      var account1String = "<p id='username'>Logged in as <a href='/user/" + res.username +"'>" + res.username + "</a></p>";
       var account2String = "<p><a href='/logout'>Logout</a></p>";
     }
     else {
