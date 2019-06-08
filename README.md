@@ -26,3 +26,6 @@ $ DEBUG=myapp:* npm start
 ```
 
 Finally, visit the website at the url http://localhost:8080/
+
+
+![Screenshot](./screenshot.png "screenshot")
