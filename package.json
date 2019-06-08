@@ -15,7 +15,6 @@
     "mustache-express": "^1.2.5",
     "mysql": "^2.15.0",
     "serve-favicon": "~2.4.5",
-    "sqlite": "^3.0.3",
     "sqlite3": "^4.0.8"
   }
 }
