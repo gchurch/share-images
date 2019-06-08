@@ -18,14 +18,12 @@ module.exports.getSessionUsername = getSessionUsername;
 function renderPage(stylesheets, scripts) {
   return function(req, res, next) {
     if(res.username) {
-      var account1String = "<p id='username'>Logged in as <a href='/user/" + res.username +"'>" + res.username + "</a></p>";
-      var account2String = "<p><a href='/logout'>Logout</a></p>";
+      var accountString = "Logged in as <a href='/user/" + res.username +"'>" + res.username + "</a> | <a href='/logout'>Logout</a>";
     }
     else {
-      var account1String = "<p><a href='/login'>Login</a></p>";
-      var account2String = "<p><a href='/signup'>Signup</a></p>";
+      var accountString = "<a href='/login'>Login</a> | <a href='/signup'>Signup</a>";
     }
-    res.render('layout', {stylesheets: stylesheets, scripts: scripts, account1: account1String, account2: account2String, content: res.pageContent});
+    res.render('layout', {stylesheets: stylesheets, scripts: scripts, account: accountString, content: res.pageContent});
   }
 }
 module.exports.renderPage = renderPage;

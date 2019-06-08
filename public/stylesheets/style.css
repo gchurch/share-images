@@ -18,9 +18,13 @@ header, footer, h1, h2, h3, p, div {
   text-align: center;
 }
 
-header #home {
+#home {
   font-size: 3em;
   font-weight: bold;
+}
+
+#home:hover {
+  background-color: white;
 }
 
 header #home:link, header #home:visited, header #home:active {
