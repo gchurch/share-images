@@ -2,7 +2,7 @@
 
 ## Description
 
-This website allows users to upload images which can then be viewed by other users. Users can also place comments on images. Each image has its own page that displays the image and all of the posted comments about it. Each user also has their own page displaying all of the images that they have uploaded and all of the comments that they have posted. In order to upload images and place comments, a user needs to have created an account and be logged in to that account.
+This website allows users to upload images which are then displayed on the website. Users are able to place comments on uploaded images. Each image has its own page that displays the image and all of the comments posted about it. Each user also has their own page displaying all of the images that they have uploaded and all of the comments that they have posted. A user can sign-up for an account on the sign-up page. A user must be logged-in to an account in order for them to upload images and place comments.
 
 ## Technical Details
 
