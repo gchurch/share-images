@@ -11,7 +11,7 @@ function start() {
       form.submit();
     }
     else {
-      window.alert("You need to be logged in order to upload an image.");
+      window.alert("You need to be logged in to upload an image.");
     }
   }
 }

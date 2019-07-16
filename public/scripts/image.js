@@ -16,7 +16,7 @@ function start() {
       }
     }
     else {
-      window.alert("You need to be logged in order to submit a comment.");
+      window.alert("You need to be logged in to submit a comment.");
     }
   }
 }

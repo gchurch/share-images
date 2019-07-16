@@ -18,10 +18,10 @@ module.exports.getSessionUsername = getSessionUsername;
 function renderPage(stylesheets, scripts) {
   return function(req, res, next) {
     if(res.username) {
-      var accountString = "Logged in as <a href='/user/" + res.username +"'>" + res.username + "</a> | <a href='/logout'>Logout</a>";
+      var accountString = "Logged in as <a href='/user/" + res.username +"'>" + res.username + "</a> | <a href='/logout'>Log out</a>";
     }
     else {
-      var accountString = "<a href='/login'>Login</a> | <a href='/signup'>Signup</a>";
+      var accountString = "<a href='/login'>Log in</a> | <a href='/signup'>Sign up</a>";
     }
     res.render('layout', {stylesheets: stylesheets, scripts: scripts, account: accountString, content: res.pageContent});
   }
