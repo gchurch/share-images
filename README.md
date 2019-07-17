@@ -1,4 +1,6 @@
-# ShareImages website
+# Share Images! website
+
+A version of the website is currently deployed on Heroku: https://sharing-images.herokuapp.com/
 
 ## Description
 
