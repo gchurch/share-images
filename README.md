@@ -29,4 +29,9 @@ $ DEBUG=myapp:* npm start
 Finally, visit the website at the url http://localhost:8080/
 
 
-![homepage](./screenshots/home.png "homepage")
+
+## Screenshots
+
+![home page](./screenshots/home.png "home page")
+![image](./screenshots/image.png "image page")
+![account](./screenshots/account.png "account page")
