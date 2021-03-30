@@ -12,7 +12,7 @@ A version of the website is currently deployed on Heroku: https://sharing-images
 - The [mustache](https://github.com/janl/mustache.js) template system is used to render the html for each page.
 - The [multer](https://github.com/expressjs/multer) middleware package is used to upload files to the web server.
 - [SQLite](https://github.com/mapbox/node-sqlite3) is used for the database.
-- User passwords are salted, hashed and stretched for security purposes using the [crypto](https://nodejs.org/api/crypto.html) module.
+- I implemented user authentication using cookies. User passwords are salted, hashed and stretched for security purposes using the [crypto](https://nodejs.org/api/crypto.html) module.
 - A responsive web design was created using CSS. Media queries are used to determine the number of images to display in each row on the homepage.
 
 ## Running the Webserver (Linux)
