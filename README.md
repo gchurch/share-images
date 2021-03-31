@@ -16,18 +16,18 @@ A version of the website is currently deployed on Heroku: https://sharing-images
 - User passwords are salted, hashed and stretched for security purposes using the [crypto](https://nodejs.org/api/crypto.html) module.
 - A responsive web design was created using CSS. Media queries are used to determine the number of images to display in each row on the homepage.
 
-## Running the Webserver (Linux)
+## Running the Webserver
 
 First, install all of the required node packages using the command:
 
 ```
-$ npm install
+npm install
 ```
 
 Next, run the web server with the command:
 
 ```
-$ DEBUG=myapp:* npm start
+npm start
 ```
 
 Finally, visit the website at the url http://localhost:8080/
